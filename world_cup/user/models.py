@@ -1,5 +1,6 @@
 import os
 import pickle
+import uuid
 
 from django.conf import settings
 from django.core.cache import cache
@@ -8,8 +9,9 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractUser
 
 from common.models import BaseModel
+from common.utils.time import get_now
 from common.utils.validators import mobile_regex
-from football.choices import WinnerChoices
+from football.choices import WinnerChoices, MatchStatus
 from football.models import Match
 
 
@@ -19,7 +21,11 @@ class User(AbstractUser, BaseModel):
         User token, medrick ID, mobile number, username, and email are received from SSO.
         First, the SSO must verify the player's identity and then register in the system.
         """
-    token = models.CharField(verbose_name=_("Token"), max_length=255, null=True, blank=True)
+
+    def generate_token():
+        return f'MED-{uuid.uuid4().hex[:6]}'
+
+    token = models.CharField(verbose_name=_("Token"), max_length=255, null=True, blank=True, default=generate_token)
     mobile_number = models.CharField(verbose_name=_("Mobile number"), max_length=31, unique=True,
                                      validators=[mobile_regex], )
 
@@ -119,14 +125,13 @@ class Feedback(BaseModel):
 class PredictionArrange(BaseModel):
     """
         sample_predict_schema = {
-            'arrange': ['id[int]'],
-            'change_player': ['id[int]'],
-            'yellow_card': ['id[int]'],
-            'red_card': ['id[int]'],
-            'goal': ['id[int]'],
-            'assist_goal': ['id[int]'],
-            'winner': 'Enum[team1 or team2 or draw]',
-            'penalty': 'bool',
+                "arrange": [3, 4],
+                "change_player": [3, 4],
+                "yellow_card": [3, 4],
+                "red_card": [3, 4],
+                "goal": [3, 4],
+                "assist_goal": [3, 4],
+                "best_player": 3
         }
     """
 
@@ -137,5 +142,11 @@ class PredictionArrange(BaseModel):
     winner = models.IntegerField(verbose_name=_('winner'), choices=WinnerChoices.choices)
     is_penalty = models.BooleanField(verbose_name=_('is penalty'), default=False)
 
+    point = models.PositiveIntegerField(verbose_name=_("score"), null=True, blank=True,
+                                        help_text="Points earned from correct predictions.")
+
     class Meta:
         unique_together = ('player', 'match')
+
+    def __str__(self):
+        return f'{self.player.username} {self.match}'
