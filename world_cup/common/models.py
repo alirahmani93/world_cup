@@ -5,6 +5,7 @@ from django.core.cache import cache
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from common.choices import SMSModeKeys
 from common.utils.time import standard_response_datetime, get_now
 from common.utils.validators import version_regex
 
@@ -59,6 +60,7 @@ class Configuration(SingletonBaseModel):
     last_bundle_version = models.PositiveIntegerField(verbose_name=_("Last bundle version"), default=1)
     minimum_supported_bundle_version = models.PositiveIntegerField(
         verbose_name=_("minimum supported bundle version"), default=1, )
+    by_pass_sms = models.BooleanField(verbose_name=_("by pass sms"), default=False)
 
     @property
     def server_time_zone(self):
@@ -119,6 +121,7 @@ class CorrectPredictScore(SingletonBaseModel):
     red_card_score = models.PositiveIntegerField(verbose_name=_("red_card score"), default=1)
     arrange_score = models.PositiveIntegerField(verbose_name=_("arrange score"), default=1)
     change_player_score = models.PositiveIntegerField(verbose_name=_("change player score"), default=1)
+    best_player_score = models.PositiveIntegerField(verbose_name=_("best player score"), default=1)
 
     class Meta:
         verbose_name = _("Correct Predict Score")

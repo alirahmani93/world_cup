@@ -5,6 +5,7 @@ OK_200 = {
     'code': 'OK',
     'number': status.HTTP_200_OK
 }
+# 400
 PLAYER_NOT_FOUND_450 = {
     'detail': 'Player not found',
     'code': 'player_not_found',
@@ -14,4 +15,16 @@ MATCH_NOT_FOUND_451 = {
     'detail': 'Match not found',
     'code': 'match_not_found',
     'number': 451
+}
+
+INVALID_OTP_460 = {
+    'detail': 'Invalid OTP',
+    'code': 'invalid_otp',
+    'number': status.HTTP_403_FORBIDDEN
+}
+
+OTP_NOT_FOUND_461 = {
+    'detail': 'OTP not found',
+    'code': 'otp_not_found',
+    'number': 461
 }
