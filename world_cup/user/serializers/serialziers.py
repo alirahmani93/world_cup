@@ -16,6 +16,21 @@ class PlayerSerializer(serializers.ModelSerializer):
         }
 
 
+class PlayerLeaderboardSerializer(PlayerSerializer):
+    class Meta:
+        model = Player
+        fields = ['id', 'uuid', 'score', 'profile_name', 'avatar']
+
+
+class SignUpMobileSerializer(BaseSerializer):
+    mobile_number = serializers.CharField()
+
+
+class PlayerSignInMobileSerializer(BaseSerializer):
+    mobile_number = serializers.CharField()
+    otp = serializers.CharField(required=False)
+
+
 class TeamPredictSerializer(BaseSerializer):
     arrange = serializers.ListField()
     change_player = serializers.ListField()
@@ -23,8 +38,9 @@ class TeamPredictSerializer(BaseSerializer):
     red_card = serializers.ListField()
     goal = serializers.ListField()
     assist_goal = serializers.ListField()
+    best_player = serializers.IntegerField()
 
-    penalty = serializers.BooleanField()
+    # penalty = serializers.BooleanField()
 
 
 class PredictSerializer(serializers.ModelSerializer):
