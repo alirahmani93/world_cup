@@ -21,6 +21,11 @@ class BaseViewSet(viewsets.GenericViewSet):
     def get_queryset(self):
         return self.queryset.filter(is_active=True)
 
+    def response_paginated_query(self, queryset):
+        page = self.paginate_queryset(queryset)
+        serializer = self.get_serializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
+
     class Meta:
         abstract = True
 
