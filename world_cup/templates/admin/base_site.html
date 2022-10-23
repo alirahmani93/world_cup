@@ -1,0 +1,34 @@
+{% extends 'admin/base_site.html' %}
+{% load static %}
+{% load i18n %}
+{% block usertools %}
+    <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
+
+    {% if has_permission %}
+        <div id="user-tools">
+            {% block welcome-msg %}
+                {% translate 'Welcome,' %}
+                <strong>{% firstof user.get_short_name user.get_username %}</strong>.
+            {% endblock %}
+            {% block userlinks %}
+                {% if site_url %}
+                    {% if user.is_staff %}
+                        <a href="/api/">{% translate 'View APIs' %}</a> /
+                        <a href="/silk/">{% translate 'API Profiler' %}</a> /
+                        <a href="https://stage.mafia.medrick.info">{% translate 'Stage Server' %}</a> /
+                    {% endif %}
+                {% endif %}
+                {% if user.is_active and user.is_staff %}
+                    {% url 'django-admindocs-docroot' as docsroot %}
+                    {% if docsroot %}
+                        <a href="{{ docsroot }}">{% translate 'Documentation' %}</a> /
+                    {% endif %}
+                {% endif %}
+                {% if user.has_usable_password %}
+                    <a href="{% url 'admin:password_change' %}">{% translate 'Change password' %}</a> /
+                {% endif %}
+                <a href="{% url 'admin:logout' %}">{% translate 'Log out' %}</a>
+            {% endblock %}
+        </div>
+    {% endif %}
+{% endblock %}

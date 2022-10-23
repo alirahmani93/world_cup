@@ -1,14 +1,16 @@
 import os
+import pickle
 
 from django.conf import settings
+from django.core.cache import cache
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractUser
 
 from common.models import BaseModel
 from common.utils.validators import mobile_regex
+from football.choices import WinnerChoices
 from football.models import Match
-from user.choices import Gender
 
 
 class User(AbstractUser, BaseModel):
@@ -31,6 +33,21 @@ class User(AbstractUser, BaseModel):
         """Creates the users full name"""
         return f'{self.first_name} {self.last_name}' if self.first_name or self.last_name else self.username
 
+    @property
+    def player(self):
+        try:
+            player = cache.get(f'{Player.__module__}({self.pk})')
+            if player:
+                player = pickle.loads(player)
+            else:
+                player = Player.objects.filter(pk=self.pk).first()
+        except:
+            player = None
+
+        cache.set(f'{Player.__module__}({self.pk})', pickle.dumps(player),
+                  settings.CACHE_EXPIRATION_PLAYER_TIME)
+        return player
+
     @staticmethod
     def system_user():
         """system_user is a special user that has the ability to perform automatic operations"""
@@ -47,12 +64,12 @@ class User(AbstractUser, BaseModel):
     def save(self, *args, **kwargs):
         if not self.pk:
             if not self.username:
-                self.username = self.medrick_id
+                self.username = self.mobile_number
         super(User, self).save(*args, **kwargs)
 
     def delete(self, using=None, keep_parents=False):
         """system_user and root can't delete"""
-        if self.username in [os.environ.get('SYSTEM_USER_NAME')]:
+        if self.username in [os.environ.get('SYSTEM_USER_NAME'), os.environ.get('ROOT_USER_NAME')]:
             return super(User, self).delete(using=None, keep_parents=False)
 
     class Meta:
@@ -100,33 +117,25 @@ class Feedback(BaseModel):
 
 
 class PredictionArrange(BaseModel):
+    """
+        sample_predict_schema = {
+            'arrange': ['id[int]'],
+            'change_player': ['id[int]'],
+            'yellow_card': ['id[int]'],
+            'red_card': ['id[int]'],
+            'goal': ['id[int]'],
+            'assist_goal': ['id[int]'],
+            'winner': 'Enum[team1 or team2 or draw]',
+            'penalty': 'bool',
+        }
+    """
+
     player = models.ForeignKey(to=Player, on_delete=models.CASCADE)
     match = models.ForeignKey(to=Match, on_delete=models.CASCADE)
     predict_team_1 = models.JSONField()
     predict_team_2 = models.JSONField()
-
-    sample_predict = {
-        'arrange': {
-            'gk': 'team_player_id',
-            'rb': 'team_player_id',
-            'lb': 'team_player_id',
-            'lcb': 'team_player_id',
-            'rcb': 'team_player_id',
-            'cdm': 'team_player_id',
-            'lcm': 'team_player_id',
-            'rcm': 'team_player_id',
-            'rw': 'team_player_id',
-            'lw': 'team_player_id',
-            'st': 'team_player_id',
-        },  # or 'arrange':['id[int]']
-        'change_player': ['id[int]'],
-        'yellow_card': ['id[int]'],
-        'red_card': ['id[int]'],
-        'goal': ['id[int]'],
-        'assist_goal': ['id[int]'],
-        'winner': 'Enum[team1 or team2 or draw]',
-        'penalty': '[bool]',
-    }
+    winner = models.IntegerField(verbose_name=_('winner'), choices=WinnerChoices.choices)
+    is_penalty = models.BooleanField(verbose_name=_('is penalty'), default=False)
 
     class Meta:
         unique_together = ('player', 'match')

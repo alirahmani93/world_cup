@@ -52,8 +52,8 @@ class Command(BaseCommand):
                 is_staff=True, is_superuser=True
             )
             if is_created:
-                admin.set_password('123456')
-                admin.save()
+                system.set_password('123456')
+                system.save()
                 print('system user created')
             else:
                 print('system user already exists')

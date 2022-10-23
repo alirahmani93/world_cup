@@ -68,6 +68,36 @@ class Configuration(SingletonBaseModel):
     def server_time(self):
         return standard_response_datetime(get_now())
 
+    @property
+    def choices_continent(self):
+        from football.choices import Continent
+        return Continent.choices
+
+    @property
+    def choices_world_cup_group(self):
+        from football.choices import WorldCupGroup
+        return WorldCupGroup.choices
+
+    @property
+    def choices_match_level(self):
+        from football.choices import MatchLevel
+        return MatchLevel.choices
+
+    @property
+    def choices_match_status(self):
+        from football.choices import MatchStatus
+        return MatchStatus.choices
+
+    @property
+    def choices_winner(self):
+        from football.choices import WinnerChoices
+        return WinnerChoices.choices
+
+    @property
+    def choices_team_player_role(self):
+        from football.choices import TeamPlayerRole
+        return TeamPlayerRole.choices
+
     @classmethod
     def load(cls):
         cache_data = cache.get(settings.CONFIGURATION_PREFIX)
@@ -80,3 +110,29 @@ class Configuration(SingletonBaseModel):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         cache.set(settings.CONFIGURATION_PREFIX, self)
+
+
+class CorrectPredictScore(SingletonBaseModel):
+    goal_score = models.PositiveIntegerField(verbose_name=_("goal score"), default=1)
+    assist_goal_score = models.PositiveIntegerField(verbose_name=_("assist goal score"), default=1)
+    yellow_card_score = models.PositiveIntegerField(verbose_name=_("yellow card score"), default=1)
+    red_card_score = models.PositiveIntegerField(verbose_name=_("red_card score"), default=1)
+    arrange_score = models.PositiveIntegerField(verbose_name=_("arrange score"), default=1)
+    change_player_score = models.PositiveIntegerField(verbose_name=_("change player score"), default=1)
+
+    class Meta:
+        verbose_name = _("Correct Predict Score")
+        verbose_name_plural = _("Correct Predict Scores")
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        cache.set(settings.CORRECT_PREDICTION_SCORE_PREFIX, self)
+
+    @classmethod
+    def load(cls):
+        cache_data = cache.get(settings.CORRECT_PREDICTION_SCORE_PREFIX)
+        if cache_data:
+            return cache_data
+        data = cls.objects.get_or_create()[0]
+        cache.set(settings.CORRECT_PREDICTION_SCORE_PREFIX, data)
+        return data

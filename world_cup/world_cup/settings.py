@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', default='secret_key_re-q%4=9z1xb*o)n(v-p4jyx0j-v$t+qx4b!sw=')
 DEBUG = int(os.getenv('DEBUG', default=True))
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1").split(",")
+ALLOWED_HOSTS = ['*']  # os.getenv("ALLOWED_HOSTS", "127.0.0.1").split(",")
 
 VERSION = '0.1.0'
 SITE_ID = 1
@@ -26,6 +26,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'rest_framework',
 
     'common',
     'user',
@@ -50,7 +52,7 @@ PROJECT_NAME = os.getenv("PROJECT_NAME", ROOT_URLCONF.split(".")[0])
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -59,8 +61,11 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+            'libraries': {
+                'staticfiles': 'django.templatetags.static',
+            },
         },
-    },
+    }
 ]
 
 WSGI_APPLICATION = 'world_cup.wsgi.application'
@@ -97,7 +102,17 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
+# STATIC_URL = '/static/'
+
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+STATICFILES_DIRS = [
+    MEDIA_ROOT,
+]
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 SYSTEM_USER_NAME = os.getenv("SYSTEM_USER_NAME", 'SYSTEM')
@@ -110,3 +125,36 @@ ROOT_USER_EMAIL = os.getenv('SYSTEM_USER_EMAIL', default="root@system.com")
 
 # Redis
 CONFIGURATION_PREFIX = 'configuration_'
+CORRECT_PREDICTION_SCORE_PREFIX = 'CorrectPredictScore_'
+
+REST_FRAMEWORK = {
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.NamespaceVersioning',
+    'DEFAULT_VERSION': 'v1',
+    'ALLOWED_VERSIONS': os.environ.get('REST_FRAMEWORK_ALLOWED_VERSIONS', default='v1').split(','),
+
+    'DEFAULT_PAGINATION_CLASS': 'common.utils.pagination.ResponsePaginator',
+    'PAGE_SIZE': int(os.getenv('PAGE_SIZE', 1)),
+
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
+
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': os.getenv("ANON_THROTTLE_RATES", '1000/hour'),
+        'user': os.getenv("USER_THROTTLE_RATES", '1000/hour')
+    },
+
+}
+CACHE_EXPIRATION_PLAYER_TIME: int = int(os.getenv('CACHE_EXPIRATION_PLAYER_TIME', default=60))
