@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
+    "django_filters",
 
     'common',
     'user',
@@ -158,3 +159,10 @@ REST_FRAMEWORK = {
 
 }
 CACHE_EXPIRATION_PLAYER_TIME: int = int(os.getenv('CACHE_EXPIRATION_PLAYER_TIME', default=60))
+CACHE_EXPIRATION_LEADERBOARD_TIME: int = int(os.getenv('CACHE_EXPIRATION_LEADERBOARD_TIME', default=60))
+CACHE_EXPIRATION_OTP_TIME: int = int(os.getenv('CACHE_EXPIRATION_LEADERBOARD_TIME', default=60))
+
+# SMS
+SMS_PANEL_API_KEY = os.environ.get('SMS_PANEL_API_KEY')
+SEND_SMS_VERIFY = 'https://api.kavenegar.com/v1/{}/verify/lookup.json'.format(SMS_PANEL_API_KEY)
+SEND_SMS_URL = 'https://api.kavenegar.com/v1/{}/sms/send.json'.format(SMS_PANEL_API_KEY)
