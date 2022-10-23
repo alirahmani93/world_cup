@@ -25,8 +25,8 @@ class Team(BaseModel):
 class TeamPlayer(BaseModel):
     first_name = models.CharField(verbose_name=_('first name'), max_length=255)
     last_name = models.CharField(verbose_name=_('last name'), max_length=255)
-    number = models.PositiveBigIntegerField(verbose_name=_('number'), validators=[MinValueValidator(100)])
-    team = models.ForeignKey(verbose_name=_('team'), to=Team, choices=Continent.choices, on_delete=models.CASCADE)
+    number = models.PositiveBigIntegerField(verbose_name=_('number'), validators=[MaxValueValidator(100)])
+    team = models.ForeignKey(verbose_name=_('team'), to=Team, on_delete=models.CASCADE)
     is_banned_next_match = models.BooleanField(verbose_name=_("is banned next match"), default=False)
     rank = models.FloatField(verbose_name=_("rank"), validators=[MinValueValidator(0.0), MaxValueValidator(10.0)])
 
@@ -59,12 +59,13 @@ class Match(BaseModel):
 
     def save(self, *args, **kwargs):
         if self.status == MatchStatus.NOT_STARTED:
-            if not self.winner:
+            if self.winner:
                 raise Exception(_("Match Not start yet so winner side is not acceptable."))
         if self.level != MatchLevel.PRELIMINARY:
             if self.winner == WinnerChoices.DRAW:
                 raise Exception("Draw in this level impossible!")
         super(Match, self).save()
+
 
     class Meta:
         verbose_name = _("Match")
@@ -90,3 +91,6 @@ class TeamPlayerAction(BaseModel):
         verbose_name = _("Action Team Player")
         verbose_name_plural = _("Action Team Players")
         unique_together = ('match', 'player')
+
+    def __str__(self):
+        return f'{self.player.full_name} ({self.match})'
