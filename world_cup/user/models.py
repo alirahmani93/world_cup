@@ -84,7 +84,10 @@ class User(AbstractUser, BaseModel):
 
 
 class Player(User):
-    avatar = models.JSONField(verbose_name=_('Avatar'), default={"current": "1"}, null=True, blank=True)
+    def get_avatar():
+        return {"current": "1"}
+
+    avatar = models.JSONField(verbose_name=_('Avatar'), default=get_avatar, null=True, blank=True)
     profile_name = models.CharField(verbose_name=_("Profile name"), max_length=150, null=True, blank=True)
 
     is_verified = models.BooleanField(verbose_name=_('Is verified'), default=False)
