@@ -1,9 +1,8 @@
-from django.contrib.postgres.fields import ArrayField
+from django.utils.translation import gettext_lazy as _
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
-from common.models import BaseModel
-from django.utils.translation import gettext_lazy as _
 
+from common.models import BaseModel
 from football.choices import Continent, WorldCupGroup, MatchLevel, MatchStatus, WinnerChoices, TeamPlayerRole
 
 
@@ -64,12 +63,34 @@ class Match(BaseModel):
         if self.level != MatchLevel.PRELIMINARY:
             if self.winner == WinnerChoices.DRAW:
                 raise Exception("Draw in this level impossible!")
-        super(Match, self).save()
+        super(Match, self).save(args, kwargs)
 
+        if self.status == MatchStatus.FINISHED:
+            self.match_finish()
 
     class Meta:
         verbose_name = _("Match")
         verbose_name_plural = _("Matches")
+
+    def match_finish(self):
+        r1, r2 = self.calculate_match_result()
+        MatchResult.objects.create(match=self, winner=self.winner, team_1=r1, team_2=r2, is_penalty=self.is_penalty)
+        print('match result created')
+
+    def calculate_match_result(self):
+        team_players_1 = TeamPlayerAction.objects.filter(player__team=self.team_1)
+        team_players_2 = TeamPlayerAction.objects.filter(player__team=self.team_2)
+
+        result_team_1 = self.calculate_match_player_result(team_players_1)
+        result_team_2 = self.calculate_match_player_result(team_players_2)
+        return result_team_1, result_team_2
+
+    @staticmethod
+    def calculate_match_player_result(team_players):
+        tmp = []
+        for tp in team_players:
+            tmp.append(tp.make_dict())
+        return tmp
 
 
 class TeamPlayerAction(BaseModel):
@@ -94,3 +115,32 @@ class TeamPlayerAction(BaseModel):
 
     def __str__(self):
         return f'{self.player.full_name} ({self.match})'
+
+    def make_dict(self):
+        return {
+            'match': self.match.id,
+            'player': self.player.id,
+            'team': self.player.team.id,
+            'yellow_card': self.yellow_card,
+            'goal': self.goal,
+            'assist_goal': self.assist_goal,
+
+            'red_card': self.red_card,
+            'is_change': self.is_change,
+            'is_best_player': self.is_best_player,
+        }
+
+
+class MatchResult(BaseModel):
+    match = models.OneToOneField(verbose_name=_("match"), to=Match, on_delete=models.CASCADE)
+    winner = models.IntegerField(verbose_name=_("winner"), choices=WinnerChoices.choices)
+    is_penalty = models.BooleanField(verbose_name=_('is penalty'), default=False)
+    team_1 = models.JSONField(verbose_name=_("team 1"), )
+    team_2 = models.JSONField(verbose_name=_("team 2"), )
+
+    class Meta:
+        verbose_name = _("Match Result")
+        verbose_name_plural = _("Match Results")
+
+    def __str__(self):
+        return f'result ( {self.match} )'

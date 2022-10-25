@@ -1,9 +1,10 @@
-from football.models import TeamPlayerAction
 from common.models import CorrectPredictScore
+from football.models import MatchResult
 
 
 def calculate_points(predict: dict, match_players):
     cp = CorrectPredictScore.load()
+    mr = MatchResult.objects.filter()
     keys = ['arrange', 'change_player', 'yellow_card', 'red_card', 'goal', 'assist_goal', ]
 
     arrange_ids = match_players.values_list('player_id', flat=True)
