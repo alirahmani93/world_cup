@@ -8,15 +8,8 @@ from pathlib import Path
 from django.utils.translation import gettext_lazy as _
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-SECRET_KEY = os.getenv('SECRET_KEY', default='secret_key_re-q%4=9z1xb*o)n(v-p4jyx0j-v$t+qx4b!sw=')
 DEBUG = int(os.getenv('DEBUG', default=True))
-ALLOWED_HOSTS = ['*']  # os.getenv("ALLOWED_HOSTS", "127.0.0.1").split(",")
-
-VERSION = '0.1.0'
-SITE_ID = 1
-SITE_HEADER = _('World Cup Manager')
-SITE_TITLE = _('Welcome to World Cup Manager')
-WEB_PROTOCOL = os.environ.get('WEB_PROTOCOL', 'http')
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1").split(",")
 
 CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', default='http://localhost,http://127.0.0.1').split(',')
 
@@ -33,7 +26,7 @@ INSTALLED_APPS = [
 
     'common',
     'user',
-    'football',
+    'football.apps.FootballConfig',
 ]
 
 MIDDLEWARE = [
@@ -88,15 +81,15 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    # {
+    #     'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    # },
+    # {
+    #     'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    # },
+    # {
+    #     'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    # },
 ]
 
 LANGUAGE_CODE = 'en-us'
@@ -163,10 +156,14 @@ CACHE_EXPIRATION_PLAYER_TIME: int = int(os.getenv('CACHE_EXPIRATION_PLAYER_TIME'
 CACHE_EXPIRATION_LEADERBOARD_TIME: int = int(os.getenv('CACHE_EXPIRATION_LEADERBOARD_TIME', default=60))
 CACHE_EXPIRATION_OTP_TIME: int = int(os.getenv('CACHE_EXPIRATION_LEADERBOARD_TIME', default=60))
 
-# SMS
-SMS_PANEL_API_KEY = os.environ.get('SMS_PANEL_API_KEY')
-SEND_SMS_VERIFY = 'https://api.kavenegar.com/v1/{}/verify/lookup.json'.format(SMS_PANEL_API_KEY)
-SEND_SMS_URL = 'https://api.kavenegar.com/v1/{}/sms/send.json'.format(SMS_PANEL_API_KEY)
+# Application
+STAGE_SERVER = os.getenv("STAGE_SERVER", default='https://stage.myserver.ir')
+SECRET_KEY = os.getenv('SECRET_KEY', default='sexcrsdet_key_rZe-AE9z1xb*o)n(SV-p4jyx0Sj-v$Jt+qx4bP!sw=')
+VERSION = '0.1.0'
+SITE_ID = 1
+SITE_HEADER = _('World Cup Manager')
+SITE_TITLE = _('Welcome to World Cup Manager')
+WEB_PROTOCOL = os.environ.get('WEB_PROTOCOL', 'http')
 
 # CELERY
 BROKER_URL = os.getenv("BROKER_URL", default='redis://localhost:6379')
@@ -175,3 +172,8 @@ CELERY_ACCEPT_CONTENT = ['application/json', 'application/x-python-serialize']
 CELERY_TASK_SERIALIZER = 'pickle'
 CELERY_RESULT_SERIALIZER = 'pickle'
 CELERY_TIMEZONE = TIME_ZONE
+
+# SMS
+SMS_PANEL_API_KEY = os.environ.get('SMS_PANEL_API_KEY')
+SEND_SMS_VERIFY = 'https://api.kavenegar.com/v1/{}/verify/lookup.json'.format(SMS_PANEL_API_KEY)
+SEND_SMS_URL = 'https://api.kavenegar.com/v1/{}/sms/send.json'.format(SMS_PANEL_API_KEY)

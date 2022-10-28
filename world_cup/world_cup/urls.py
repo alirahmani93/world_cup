@@ -9,12 +9,14 @@ from rest_framework import routers
 from common.views import HealthViewSet
 from common.urls import router as common_router
 from user.urls import router as user_router
+from football.urls import router as football_router
 
 router = routers.DefaultRouter()
 router.register('health', HealthViewSet, basename='health')
 
 router.registry.extend(common_router.registry)
 router.registry.extend(user_router.registry)
+router.registry.extend(football_router.registry)
 
 admin.AdminSite.site_header = settings.SITE_HEADER
 admin.AdminSite.site_title = settings.SITE_TITLE
