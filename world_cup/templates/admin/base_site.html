@@ -1,6 +1,7 @@
 {% extends 'admin/base_site.html' %}
 {% load static %}
 {% load i18n %}
+{% load handler %}
 {% block usertools %}
     <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
 
@@ -15,7 +16,7 @@
                     {% if user.is_staff %}
                         <a href="/api/">{% translate 'View APIs' %}</a> /
                         <a href="/silk/">{% translate 'API Profiler' %}</a> /
-                        <a href="https://stage.mafia.medrick.info">{% translate 'Stage Server' %}</a> /
+                        <a href={% stage_url %}>{% translate 'Stage Server' %}</a> /
                     {% endif %}
                 {% endif %}
                 {% if user.is_active and user.is_staff %}
