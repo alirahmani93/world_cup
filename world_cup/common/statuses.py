@@ -28,3 +28,9 @@ OTP_NOT_FOUND_461 = {
     'code': 'otp_not_found',
     'number': 461
 }
+
+PREDICTION_TIME_OVER_470 = {
+    'detail': 'Prediction time is over',
+    'code': 'prediction_time_is_over',
+    'number': 470
+}

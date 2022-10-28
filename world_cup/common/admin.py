@@ -2,9 +2,6 @@ from django.contrib import admin
 from .models import Configuration, CorrectPredictScore
 
 
-# Register your models here.
-
-
 class BaseAdmin(admin.ModelAdmin):
     save_on_top = True
     list_display = ['__str__', ]
@@ -44,8 +41,13 @@ class GeneralAdmin(BaseAdmin):
     ]
 
 
-# admin.site.register(Configuration)
-# admin.site.register(CorrectPredictScore)
+class BaseInline(admin.StackedInline):
+    """
+    Defines SOME_ADMIN inline model.
+    """
+    model = None
+    filter_horizontal = []
+    extra = 0
 
 
 @admin.register(Configuration)

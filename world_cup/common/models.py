@@ -1,5 +1,5 @@
 from uuid import uuid4
-
+from django.core.validators import MaxValueValidator
 from django.conf import settings
 from django.core.cache import cache
 from django.db import models
@@ -115,13 +115,60 @@ class Configuration(SingletonBaseModel):
 
 
 class CorrectPredictScore(SingletonBaseModel):
-    goal_score = models.PositiveIntegerField(verbose_name=_("goal score"), default=1)
-    assist_goal_score = models.PositiveIntegerField(verbose_name=_("assist goal score"), default=1)
-    yellow_card_score = models.PositiveIntegerField(verbose_name=_("yellow card score"), default=1)
-    red_card_score = models.PositiveIntegerField(verbose_name=_("red_card score"), default=1)
     arrange_score = models.PositiveIntegerField(verbose_name=_("arrange score"), default=1)
     change_player_score = models.PositiveIntegerField(verbose_name=_("change player score"), default=1)
+    goal_score = models.PositiveIntegerField(verbose_name=_("goal score"), default=1)
+    yellow_card_score = models.PositiveIntegerField(verbose_name=_("yellow card score"), default=1)
+    red_card_score = models.PositiveIntegerField(verbose_name=_("red_card score"), default=1)
+    correct_winner_score = models.PositiveIntegerField(verbose_name=_("correct winner score"), default=1)
+    final_result_score = models.PositiveIntegerField(verbose_name=_("final result score"), default=1)
+    assist_goal_score = models.PositiveIntegerField(verbose_name=_("assist goal score"), default=1)
     best_player_score = models.PositiveIntegerField(verbose_name=_("best player score"), default=1)
+    penalty_score = models.PositiveIntegerField(verbose_name=_("penalty score"), default=1)
+    # Negative points
+    arrange_negative_score = models.IntegerField(verbose_name=_("arrange negative score"), default=-1,
+                                                 validators=[MaxValueValidator(0)])
+    change_player_negative_score = models.IntegerField(verbose_name=_("change player negative score"),
+                                                       default=-1, validators=[MaxValueValidator(0)])
+    goal_negative_score = models.IntegerField(verbose_name=_("goal negative score"), default=-1,
+                                              validators=[MaxValueValidator(0)])
+    yellow_card_negative_score = models.IntegerField(verbose_name=_("yellow card negative score"), default=-1,
+                                                     validators=[MaxValueValidator(0)])
+    red_card_negative_score = models.IntegerField(verbose_name=_("red_card negative score"), default=-1,
+                                                  validators=[MaxValueValidator(0)])
+    correct_winner_negative_score = models.IntegerField(verbose_name=_("correct winner negative score"),
+                                                        default=-1, validators=[MaxValueValidator(0)])
+    final_result_negative_score = models.IntegerField(verbose_name=_("final result negative score"), default=-1,
+                                                      validators=[MaxValueValidator(0)])
+    assist_goal_negative_score = models.IntegerField(verbose_name=_("assist goal negative score"), default=-1,
+                                                     validators=[MaxValueValidator(0)])
+    best_player_negative_score = models.IntegerField(verbose_name=_("best player negative score"), default=-1,
+                                                     validators=[MaxValueValidator(0)])
+    penalty_negative_score = models.IntegerField(verbose_name=_("penalty negative score"), default=-1,
+                                                 validators=[MaxValueValidator(0)])
+
+    def mapper(self):
+        return {
+            'arrange_score': self.arrange_score,
+            'change_player_score': self.change_player_score,
+            'goal_score': self.goal_score,
+            'yellow_card_score': self.yellow_card_score,
+            'red_card_score': self.red_card_score,
+            'correct_winner_score': self.correct_winner_score,
+            'final_result_score': self.final_result_score,
+            'assist_goal_score': self.assist_goal_score,
+            'best_player_score': self.best_player_score,
+
+            'arrange_negative_score': self.arrange_negative_score * -1,
+            'change_player_negative_score': self.change_player_negative_score * -1,
+            'goal_negative_score': self.goal_negative_score * -1,
+            'yellow_card_negative_score': self.yellow_card_negative_score * -1,
+            'red_card_negative_score': self.red_card_negative_score * -1,
+            'correct_winner_negative_score': self.correct_winner_negative_score * -1,
+            'final_result_negative_score': self.final_result_negative_score * -1,
+            'assist_goal_negative_score': self.assist_goal_negative_score * -1,
+            'best_player_negative_score': self.best_player_negative_score * -1,
+        }
 
     class Meta:
         verbose_name = _("Correct Predict Score")

@@ -3,6 +3,8 @@ from rest_framework.serializers import ModelSerializer
 
 from .models import Configuration
 
+excluded_fields = ['created_time', 'updated_time', 'uuid', 'is_active']
+
 
 class BaseSerializer(serializers.Serializer):
 
@@ -11,6 +13,26 @@ class BaseSerializer(serializers.Serializer):
 
     def update(self, instance, validated_data):
         pass
+
+
+class BaseModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = None
+
+    @classmethod
+    def make_serializer(cls, queryset=None, many=True, custom_exclude_fields: list = None):
+        if not queryset:
+            queryset = cls.Meta.model.objects.all()
+        res = cls(queryset, many=many).data
+        if custom_exclude_fields:
+            if many:
+                for _ in res:
+                    for i in custom_exclude_fields:
+                        del _[i]
+            else:
+                for i in custom_exclude_fields:
+                    del res[i]
+        return res
 
 
 class ConfigurationSerializers(ModelSerializer):
