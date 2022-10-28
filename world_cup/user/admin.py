@@ -1,6 +1,5 @@
 from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin as _UserAdmin
-from django.utils.translation import gettext_lazy as _
 
 from common.admin import BaseAdmin
 from user.models import User, Player, Feedback, PredictionArrange
@@ -29,7 +28,7 @@ class PlayerAdmin(BaseAdmin):
     list_display = ('username', 'mobile_number', 'email',)
     list_filter = ('is_active', 'is_staff', 'is_superuser', 'is_blocked',)
     search_fields = ['mobile_number', 'username', 'profile_name', 'uuid', 'id', 'first_name', 'last_name', ]
-    readonly_fields = ['token', 'score', 'uuid', 'date_joined', 'last_login', 'updated_time']
+    readonly_fields = ['token', 'uuid', 'date_joined', 'last_login', 'updated_time']
 
     filter_horizontal = ['groups', ]
 

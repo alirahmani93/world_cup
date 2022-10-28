@@ -15,9 +15,11 @@ from common.utils.pagination import ResponsePaginator
 from common.utils.time import get_now
 from common.utils.utils import random_code
 from common.views import BaseViewSet
+from football.choices import MatchStatus
+from football.models import Match
 from user.models import Player, PredictionArrange
 from user.serializers.serialziers import PlayerSerializer, PlayerLeaderboardSerializer, PlayerSignInMobileSerializer, \
-    SignUpMobileSerializer, PredictSerializer
+    SignUpMobileSerializer, PredictSerializer, PlayerLogInMobileSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 
 
@@ -34,12 +36,19 @@ class PlayerViewSets(mixins.RetrieveModelMixin, mixins.CreateModelMixin, mixins.
     @action(methods=["GET"], url_path='leaderboard', url_name='leaderboard', detail=False,
             serializer_class=PlayerLeaderboardSerializer, pagination_class=ResponsePaginator)
     def leaderboard(self, *args, **kwargs):
-        data = cache.get('leaderboard')
+        data, players = cache.get('leaderboard'), None
+
         if not data:
-            players = Player.objects.all().order_by('score')
+            players = Player.objects.all().filter(score__isnull=False).order_by('-score')
             data = self.serializer_class(players, many=True).data
             cache.set('leaderboard', data, settings.CACHE_EXPIRATION_LEADERBOARD_TIME)
-        return custom_response(data=data, status_code=statuses.OK_200)
+
+        result = dict()
+        result['leaderboard'] = data
+        player = self.request.user.player
+        if player:
+            result['rank'] = player.rank(query=players)
+        return custom_response(data=result, status_code=statuses.OK_200)
 
     @action(
         methods=["POST"], url_path='signin/mobile', url_name='signin-mobile', detail=False,
@@ -60,10 +69,28 @@ class PlayerViewSets(mixins.RetrieveModelMixin, mixins.CreateModelMixin, mixins.
 
         player, is_created = Player.objects.get_or_create(mobile_number=validated_data['mobile_number'], )
         if is_created:
-            player.is_verified = player.is_verified
+            player.username = validated_data['username']
+            player.is_verified = True
             player.save()
         serializer = PlayerSerializer(player)
+        return custom_response(data=serializer.data, status_code=statuses.OK_200)
 
+    @action(
+        methods=["POST"], url_path='login', url_name='login', detail=False,
+        serializer_class=PlayerLogInMobileSerializer, pagination_class=ResponsePaginator,
+        permission_classes=[AllowAny])
+    def login(self, *args, **kwargs):
+        serializer = self.serializer_class(data=self.request.data)
+        serializer.is_valid(raise_exception=True)
+        validated_data = serializer.validated_data
+
+        player, is_created = Player.objects.get_or_create(username=validated_data['username'], **{
+            'mobile_number': validated_data['id'],
+            'is_active': True
+        })
+        if is_created:
+            player.is_verified = True
+        serializer = PlayerSerializer(player)
         return custom_response(data=serializer.data, status_code=statuses.OK_200)
 
     @action(
@@ -81,31 +108,6 @@ class PlayerViewSets(mixins.RetrieveModelMixin, mixins.CreateModelMixin, mixins.
 
         return custom_response(data={}, status_code=statuses.OK_200)
 
-    @action(
-        methods=["POST"], url_path='signin/mobile', url_name='signin-mobile', detail=False,
-        serializer_class=PlayerSignInMobileSerializer, pagination_class=ResponsePaginator,
-        permission_classes=[AllowAny])
-    def signin_mobile(self, *args, **kwargs):
-        serializer = self.serializer_class(data=self.request.data)
-        serializer.is_valid(raise_exception=True)
-        validated_data = serializer.validated_data
-
-        config = Configuration.load()
-        if not config.by_pass_sms:
-            cached_otp = cache.get(validated_data['mobile_number'], )
-            if not cached_otp:
-                return custom_response(data={}, status_code=statuses.OTP_NOT_FOUND_461)
-            if cached_otp != validated_data['otp']:
-                return custom_response(data={}, status_code=statuses.INVALID_OTP_460)
-
-        player, is_created = Player.objects.get_or_create(mobile_number=validated_data['mobile_number'], )
-        if is_created:
-            player.is_verified = player.is_verified
-            player.save()
-        serializer = PlayerSerializer(player)
-
-        return custom_response(data=serializer.data, status_code=statuses.OK_200)
-
 
 class PlayerPredictViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin,
                            mixins.UpdateModelMixin, BaseViewSet):
@@ -120,3 +122,13 @@ class PlayerPredictViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mix
     def get_queryset(self):
         return self.queryset if self.request.user.is_superuser else self.queryset.filter(player=self.request.user.pk)
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=self.request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        match: Match = data['match']
+        print(match)
+        if match.status != MatchStatus.NOT_STARTED:
+            return custom_response(data={}, status_code=statuses.PREDICTION_TIME_OVER_470)
+        super(PlayerPredictViewSet, self).create(request, *args, **kwargs)

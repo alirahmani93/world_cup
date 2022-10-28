@@ -3,16 +3,16 @@ import pickle
 import uuid
 
 from django.conf import settings
+from django.contrib.postgres.fields import ArrayField
 from django.core.cache import cache
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractUser
 
 from common.models import BaseModel
-from common.utils.time import get_now
 from common.utils.validators import mobile_regex
-from football.choices import WinnerChoices, MatchStatus
-from football.models import Match
+from football.choices import WinnerChoices
+from football.models import Match, TeamPlayer
 
 
 class User(AbstractUser, BaseModel):
@@ -97,11 +97,21 @@ class Player(User):
 
     client_version = models.PositiveIntegerField(verbose_name=_("Client version"), default=0, null=True, blank=True)
 
-    score = models.PositiveBigIntegerField(verbose_name=_('score'))
+    score = models.PositiveBigIntegerField(verbose_name=_('score'), null=True, blank=True)
+
+    def rank(self, query=None):
+        if not query:
+            query = Player.objects.all()
+
+        queryset = query.filter(score__isnull=False).order_by('-score')
+        if queryset:
+            return list(queryset.values_list('pk', flat=True)).index(self.id) + 1
+        return 0
 
     class Meta:
         verbose_name = _("Player")
         verbose_name_plural = _("Players")
+        # indexes = ('score',)
 
 
 class Feedback(BaseModel):
@@ -127,26 +137,41 @@ class Feedback(BaseModel):
 
 class PredictionArrange(BaseModel):
     """
-        sample_predict_schema = {
-                "arrange": [3, 4],
-                "change_player": [3, 4],
-                "yellow_card": [3, 4],
-                "red_card": [3, 4],
-                "goal": [3, 4],
-                "assist_goal": [3, 4],
-                "best_player": 3
-        }
+    Before Match start players should send them predicts.
     """
 
-    player = models.ForeignKey(to=Player, on_delete=models.CASCADE)
-    match = models.ForeignKey(to=Match, on_delete=models.CASCADE)
-    predict_team_1 = models.JSONField()
-    predict_team_2 = models.JSONField()
+    player = models.ForeignKey(verbose_name=_('player'), to=Player, on_delete=models.CASCADE)
+    match = models.ForeignKey(verbose_name=_('match'), to=Match, on_delete=models.CASCADE)
+    team_1_goals = models.PositiveIntegerField(verbose_name=_("team 1 goals"), )
+    team_2_goals = models.PositiveIntegerField(verbose_name=_("team 2 goals"), )
+
+    best_player = models.ForeignKey(verbose_name=_('best_player'), to=TeamPlayer, on_delete=models.CASCADE, null=True,
+                                    blank=True)
     winner = models.IntegerField(verbose_name=_('winner'), choices=WinnerChoices.choices)
     is_penalty = models.BooleanField(verbose_name=_('is penalty'), default=False)
 
-    point = models.PositiveIntegerField(verbose_name=_("score"), null=True, blank=True,
-                                        help_text="Points earned from correct predictions.")
+    arrange_1_list = ArrayField(verbose_name=_("arrange 1 list"), base_field=models.IntegerField(), default=list)
+    arrange_2_list = ArrayField(verbose_name=_("arrange 2 list"), base_field=models.IntegerField(), default=list)
+    goal_1_list = ArrayField(verbose_name=_("goal 1 list"), base_field=models.IntegerField(), default=list)
+    goal_2_list = ArrayField(verbose_name=_("goal 2 list"), base_field=models.IntegerField(), default=list)
+    goal_assist_1_list = ArrayField(verbose_name=_("goal assist 1 list"), base_field=models.IntegerField(),
+                                    default=list)
+    goal_assist_2_list = ArrayField(verbose_name=_("goal assist 2 list"), base_field=models.IntegerField(),
+                                    default=list)
+    yellow_card_1_list = ArrayField(verbose_name=_("yellow card 1 list"), base_field=models.IntegerField(),
+                                    default=list)
+    yellow_card_2_list = ArrayField(verbose_name=_("yellow card 2 list"), base_field=models.IntegerField(),
+                                    default=list)
+    red_card_1_list = ArrayField(verbose_name=_("red card 1 list"), base_field=models.IntegerField(), default=list)
+    red_card_2_list = ArrayField(verbose_name=_("red card 2 list"), base_field=models.IntegerField(), default=list)
+    change_1_list = ArrayField(verbose_name=_("change 1 list"), base_field=models.IntegerField(), default=list)
+    change_2_list = ArrayField(verbose_name=_("change 2 list"), base_field=models.IntegerField(), default=list)
+
+    point = models.IntegerField(verbose_name=_("score"), null=True, blank=True,
+                                help_text="Points earned from correct predictions.")
+
+    is_processed = models.BooleanField(verbose_name=_('is processed'), default=False,
+                                       help_text='after all player predicts calculated change to True')
 
     class Meta:
         unique_together = ('player', 'match')

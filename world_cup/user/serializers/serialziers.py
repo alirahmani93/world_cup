@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from common.serializers import BaseSerializer
+from common.serializers import BaseSerializer, excluded_fields
 from user.models import PredictionArrange, Player
 
 
@@ -31,22 +31,17 @@ class PlayerSignInMobileSerializer(BaseSerializer):
     otp = serializers.CharField(required=False)
 
 
-class TeamPredictSerializer(BaseSerializer):
-    arrange = serializers.ListField()
-    change_player = serializers.ListField()
-    yellow_card = serializers.ListField()
-    red_card = serializers.ListField()
-    goal = serializers.ListField()
-    assist_goal = serializers.ListField()
-    best_player = serializers.IntegerField()
-
-    # penalty = serializers.BooleanField()
+class PlayerLogInMobileSerializer(BaseSerializer):
+    id = serializers.CharField()
+    username = serializers.CharField()
 
 
 class PredictSerializer(serializers.ModelSerializer):
-    predict_team_1 = TeamPredictSerializer()
-    predict_team_2 = TeamPredictSerializer()
-
     class Meta:
         model = PredictionArrange
-        exclude = []
+        exclude = excluded_fields
+        extra_kwargs = {
+            'point': {'read_only': True},
+            'is_processed': {'read_only': True},
+            'is_active': {'read_only': True},
+        }
