@@ -14,6 +14,7 @@ services:
 
   web:
     build: .
+    # image: world_cup_web:latest
     command: sh -c "python manage.py migrate &&
       python manage.py setup &&
       yes | python manage.py collectstatic --no-input &&
@@ -45,8 +46,8 @@ services:
       - media_volume:/app/media
       - ./nginx/conf/:/etc/nginx/conf.d/:rw
       - ./nginx/templates/:/etc/nginx/templates/:ro
-#      - ../certbot/www:/var/www/certbot/:ro
-#      - ../certbot/conf/:/etc/nginx/ssl/:ro
+    #      - ../certbot/www:/var/www/certbot/:ro
+    #      - ../certbot/conf/:/etc/nginx/ssl/:ro
     env_file:
       - ./.env
     depends_on:
