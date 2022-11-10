@@ -99,11 +99,11 @@ class MatchAdmin(GeneralAdmin):
     change_status_to_finish.short_description = _('End Match')
 
     def save_model(self, request, obj, form, change):
-        # try:
-        super(MatchAdmin, self).save_model(request, obj, form, change)
-        # except Exception as e:
-        #     messages.set_level(request, messages.ERROR)
-        #     messages.error(request=request, message=str(e))
+        try:
+            super(MatchAdmin, self).save_model(request, obj, form, change)
+        except Exception as e:
+            messages.set_level(request, messages.ERROR)
+            messages.error(request=request, message=str(e))
 
 
 @admin.register(MatchResult)
@@ -112,7 +112,7 @@ class MatchResultAdmin(GeneralAdmin):
     list_display = ['match', 'winner', 'is_penalty', 'is_processed', 'best_player_id']
     search_fields = ['match']
     search_help_text = 'match'
-    readonly_fields = ('is_processed',) #@TODO: uncomment
+    readonly_fields = ('is_processed',)  
     actions = ['change_process']
 
     def change_process(self, request, queryset):
@@ -120,11 +120,11 @@ class MatchResultAdmin(GeneralAdmin):
         Defines a custom admin action that reverse the model is active value
         :return: a defined custom panel admin action
         """
-        from .signals import calculate
+        from .tasks import calculate
 
         for q in queryset:
             if not q.is_processed:
-                calculate(match=q.match)
+                calculate(match=q.match.id)
             else:
                 messages.add_message(request, messages.WARNING, _(f'{q} is already processed'))
 

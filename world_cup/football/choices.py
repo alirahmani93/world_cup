@@ -38,9 +38,9 @@ class MatchStatus(models.IntegerChoices):
 
 
 class WinnerChoices(models.IntegerChoices):
-    TEAM_1 = 2, _("Team 1")
-    TEAM_2 = 0, _("Team 2")
-    DRAW = 1, _("Draw")
+    DRAW = 0, _("Draw")
+    TEAM_1 = 1, _("Team 1")
+    TEAM_2 = 2, _("Team 2")
 
 
 class TeamPlayerRole(models.IntegerChoices):

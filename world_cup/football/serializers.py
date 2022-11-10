@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from common.serializers import excluded_fields, BaseModelSerializer
 from common.utils.time import standard_response_datetime
-from .models import Match, TeamPlayer, Team
+from .models import Match, TeamPlayer, Team, MatchResult
 
 
 class TeamSerializer(BaseModelSerializer):
@@ -35,6 +35,12 @@ class MatchSerializer(serializers.ModelSerializer):
             return standard_response_datetime(obj.end_time)
 
 
+class MatchResultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MatchResult
+        exclude = excluded_fields
+
+
 class TeamWithTeamPlayerSerializer(TeamSerializer):
     players = serializers.SerializerMethodField()
 
@@ -47,3 +53,12 @@ class TeamWithTeamPlayerSerializer(TeamSerializer):
         if players.exists():
             return TeamPlayerSerializer(players, many=True).data
         return dict()
+
+
+class MatchDetailSerializer(MatchSerializer):
+    team_1 = TeamWithTeamPlayerSerializer()
+    team_2 = TeamWithTeamPlayerSerializer()
+
+    class Meta:
+        model = Match
+        exclude = excluded_fields
