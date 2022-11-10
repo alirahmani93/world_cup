@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DEBUG = int(os.getenv('DEBUG', default=True))
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1").split(",")
+ALLOWED_HOSTS =['*'] #os.getenv("ALLOWED_HOSTS", "127.0.0.1,0.0.0.0").split(",")
 
 CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', default='http://localhost,http://127.0.0.1').split(',')
 
@@ -23,6 +23,10 @@ INSTALLED_APPS = [
 
     'rest_framework',
     "django_filters",
+
+    "django_redis",
+    # "django_celery_results",
+    # "django_celery_beat",
 
     'common',
     'user',
@@ -113,14 +117,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SYSTEM_USER_NAME = os.getenv("SYSTEM_USER_NAME", 'SYSTEM')
 SYSTEM_USER_MOBILE_NUMBER = os.getenv('SYSTEM_USER_MOBILE_NUMBER', default="09000000000")
 SYSTEM_USER_EMAIL = os.getenv('SYSTEM_USER_EMAIL', default="system@system.com")
+SYSTEM_USER_PASSWORD = os.getenv('SYSTEM_USER_PASSWORD', default="1234567890")
 
 ROOT_USER_NAME = os.getenv("SYSTEM_USER_NAME", 'root')
 ROOT_USER_MOBILE_NUMBER = os.getenv('SYSTEM_USER_MOBILE_NUMBER', default="08000000000")
 ROOT_USER_EMAIL = os.getenv('SYSTEM_USER_EMAIL', default="root@system.com")
+ROOT_USER_PASSWORD = os.getenv('ROOT_USER_PASSWORD', default="123456")
 
 # Redis
-CONFIGURATION_PREFIX = 'configuration_'
-CORRECT_PREDICTION_SCORE_PREFIX = 'CorrectPredictScore_'
+CONFIGURATION_PREFIX = 'common_configuration'
+CORRECT_PREDICTION_SCORE_PREFIX = 'common_CorrectPredictScore'
 
 REST_FRAMEWORK = {
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.NamespaceVersioning',
@@ -128,7 +134,7 @@ REST_FRAMEWORK = {
     'ALLOWED_VERSIONS': os.environ.get('REST_FRAMEWORK_ALLOWED_VERSIONS', default='v1').split(','),
 
     'DEFAULT_PAGINATION_CLASS': 'common.utils.pagination.ResponsePaginator',
-    'PAGE_SIZE': int(os.getenv('PAGE_SIZE', 1)),
+    'PAGE_SIZE': int(os.getenv('PAGE_SIZE', 10)),
 
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
@@ -137,7 +143,7 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
 
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
