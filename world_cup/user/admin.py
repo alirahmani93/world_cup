@@ -10,8 +10,8 @@ from user.models import User, Player, Feedback, PredictionArrange
 class UserAdmin(_UserAdmin, BaseAdmin):
     list_display = ('username', 'mobile_number', 'email',)
     list_filter = ('is_active', 'is_staff', 'is_superuser',)
-    search_fields = ['email', 'first_name', 'last_name', 'mobile_number', 'username', ]
-    readonly_fields = ['token']
+    search_fields = ('email', 'first_name', 'last_name', 'mobile_number', 'username',)
+    readonly_fields = ('token',)
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(UserAdmin, self).get_fieldsets(request, obj)
@@ -27,10 +27,10 @@ class UserAdmin(_UserAdmin, BaseAdmin):
 class PlayerAdmin(BaseAdmin):
     list_display = ('username', 'mobile_number', 'email',)
     list_filter = ('is_active', 'is_staff', 'is_superuser', 'is_blocked',)
-    search_fields = ['mobile_number', 'username', 'profile_name', 'uuid', 'id', 'first_name', 'last_name', ]
-    readonly_fields = ['token', 'uuid', 'date_joined', 'last_login', 'updated_time']
+    search_fields = ('mobile_number', 'username', 'profile_name', 'uuid', 'id', 'first_name', 'last_name',)
+    readonly_fields = ('token', 'uuid', 'date_joined', 'last_login', 'updated_time')
 
-    filter_horizontal = ['groups', ]
+    filter_horizontal = ('groups',)
 
     def save_model(self, request, obj, form, change):
         try:
@@ -42,8 +42,9 @@ class PlayerAdmin(BaseAdmin):
 @admin.register(PredictionArrange)
 class PredictionArrangeAdmin(BaseAdmin):
     list_display = ('player', 'match', 'winner', 'is_penalty',)
-    list_filter = ('is_active', 'is_penalty', 'winner',)
-    search_fields = ['player_mobile_number', 'player_username', 'player_profile_name', 'uuid', 'id', 'match', ]
+    list_filter = ('is_active', 'is_penalty', 'winner', 'is_processed')
+    search_fields = ('player_mobile_number', 'player_username', 'player_profile_name', 'uuid', 'id', 'match',)
+    readonly_fields = ('is_processed',)
 
     def save_model(self, request, obj, form, change):
         try:
