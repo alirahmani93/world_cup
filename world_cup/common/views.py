@@ -73,17 +73,18 @@ class ConfigurationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def list(self, request, *args, **kwargs):
         """Return data what Non-sensitive information. """
-        data = cache.get(f'{self.__module__}__{self.get_view_name()}')
+        cache_name = settings.CONFIGURATION_PREFIX
+        data = cache.get(cache_name)
 
         if data:
             data['server_time'] = standard_response_datetime(get_now())
-            return Response(data=[data])
+            return Response(data=data)
 
         data = self.serializer_class(Configuration.load()).data
         data['server_time'] = standard_response_datetime(get_now())
 
-        cache.set(f'{self.__module__}__{self.get_view_name()}', data)
-        return Response(data=[data])
+        cache.set(cache_name, data)
+        return Response(data=data)
 
     @action(methods=['GET'], detail=False, url_path='time', url_name='time')
     def time(self, request, *args, **kwargs):
