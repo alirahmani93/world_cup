@@ -5,6 +5,8 @@ from user.models import PredictionArrange, Player
 
 
 class PlayerSerializer(serializers.ModelSerializer):
+    credentials = serializers.SerializerMethodField()
+
     class Meta:
         model = Player
         exclude = ['user_permissions', 'groups', 'token', 'password', 'is_superuser', 'is_staff']
@@ -12,8 +14,13 @@ class PlayerSerializer(serializers.ModelSerializer):
             'is_blocked': {'read_only': True},
             'is_verified': {'read_only': True},
             'is_active': {'read_only': True},
-
         }
+
+    @staticmethod
+    def get_credentials(obj):
+        credentials = obj.get_token()
+        credentials['token'] = obj.token
+        return credentials
 
 
 class PlayerLeaderboardSerializer(PlayerSerializer):
