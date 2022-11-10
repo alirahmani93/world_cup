@@ -24,11 +24,12 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 
 # Create your views here.
-class PlayerViewSets(mixins.RetrieveModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin, BaseViewSet):
+class PlayerViewSets(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin,
+                     BaseViewSet):
     serializer_class = PlayerSerializer
     queryset = Player.objects.filter(is_active=True)
-    pagination_class = ResponsePaginator
-    permission_classes = [IsAuthenticated, ]
+    # pagination_class = ResponsePaginator
+    permission_classes = [AllowAny, ]
 
     def get_queryset(self):
         return self.queryset if self.request.user.is_superuser else self.queryset.filter(pk=self.request.user.pk)
@@ -39,15 +40,17 @@ class PlayerViewSets(mixins.RetrieveModelMixin, mixins.CreateModelMixin, mixins.
         data, players = cache.get('leaderboard'), None
 
         if not data:
-            players = Player.objects.all().filter(score__isnull=False).order_by('-score')
+            players = Player.objects.all().filter(score__gt=0).order_by('-score')
             data = self.serializer_class(players, many=True).data
             cache.set('leaderboard', data, settings.CACHE_EXPIRATION_LEADERBOARD_TIME)
 
         result = dict()
         result['leaderboard'] = data
-        player = self.request.user.player
-        if player:
-            result['rank'] = player.rank(query=players)
+
+        if self.request.user.is_authenticated:
+            player = self.request.user.player_
+            if player:
+                result['rank'] = player.rank(query=players)
         return custom_response(data=result, status_code=statuses.OK_200)
 
     @action(
@@ -113,7 +116,7 @@ class PlayerPredictViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mix
                            mixins.UpdateModelMixin, BaseViewSet):
     serializer_class = PredictSerializer
     queryset = PredictionArrange.objects.filter(is_active=True)
-    pagination_class = ResponsePaginator
+    # pagination_class = ResponsePaginator
     permission_classes = [IsAuthenticated, ]
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_fields = ["winner", "is_penalty", 'match', 'is_active']
@@ -128,7 +131,6 @@ class PlayerPredictViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mix
         data = serializer.validated_data
 
         match: Match = data['match']
-        print(match)
         if match.status != MatchStatus.NOT_STARTED:
             return custom_response(data={}, status_code=statuses.PREDICTION_TIME_OVER_470)
-        super(PlayerPredictViewSet, self).create(request, *args, **kwargs)
+        return super(PlayerPredictViewSet, self).create(request, *args, **kwargs)
