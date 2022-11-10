@@ -30,6 +30,7 @@ class TeamPlayer(BaseModel):
     team = models.ForeignKey(verbose_name=_('team'), to=Team, on_delete=models.CASCADE)
     is_banned_next_match = models.BooleanField(verbose_name=_("is banned next match"), default=False)
     rank = models.FloatField(verbose_name=_("rank"), validators=[MinValueValidator(0.0), MaxValueValidator(10.0)])
+    key = models.CharField(verbose_name=_('key'), max_length=255, unique=True)
 
     @property
     def full_name(self):
@@ -54,6 +55,8 @@ class Match(BaseModel):
 
     winner = models.IntegerField(verbose_name=_("winner"), choices=WinnerChoices.choices, blank=True, null=True)
     is_penalty = models.BooleanField(verbose_name=_('is penalty'), default=False)
+    bracket_position = models.PositiveIntegerField(verbose_name=_('bracket position'), null=True, blank=True,
+                                                   unique=True)
 
     def __str__(self):
         return f'{self.team_1}-{self.team_2} (level:{self.level})'
@@ -65,6 +68,9 @@ class Match(BaseModel):
         if self.level != MatchLevel.PRELIMINARY:
             if self.winner == WinnerChoices.DRAW:
                 raise Exception("Draw in this level impossible!")
+            if not self.bracket_position:
+                raise Exception("bracket position needed!")
+
         if self.status == MatchStatus.FINISHED:
             print(self.teamplayeraction_set.filter(is_best_player=True).count())
             if self.teamplayeraction_set.filter(is_best_player=True).count() != 1:
@@ -89,6 +95,12 @@ class Match(BaseModel):
         tg_2, bpi_2, gl_2, ga_2, ar_2, ch_2, yc_2, rc_2 = self.calculate_match_player_result(team_players_2)
         bpi = bpi_1 if bpi_1 else bpi_2
 
+        r1 = self.represent_field(
+            {"bpi_1": bpi_1, "gl_1": gl_1, "ga_1": ga_1, "ar_1": ar_1, "ch_1": ch_1, "yc_1": yc_1, "rc_1": rc_1})
+
+        r2 = self.represent_field(
+            {"bpi_2": bpi_2, "gl_2": gl_2, "ga_2": ga_2, "ar_2": ar_2, "ch_2": ch_2, "yc_2": yc_2, "rc_2": rc_2})
+        rf = {**r1, **r2}
         x = MatchResult.objects.filter(match=self, )
         if x.exists():
             x.update(
@@ -109,6 +121,7 @@ class Match(BaseModel):
                 red_card_2_list=rc_2,
                 change_1_list=ch_1,
                 change_2_list=ch_2,
+                represent_field=rf
             )
         else:
             MatchResult.objects.create(
@@ -130,10 +143,11 @@ class Match(BaseModel):
                 red_card_2_list=rc_2,
                 change_1_list=ch_1,
                 change_2_list=ch_2,
+                represent_field=rf
             )
 
         print(f'{self.__str__()}: MatchResult created at:{get_now()}')
-        print(f'Process time :{get_now() - t1}') \
+        print(f'Process time :{get_now() - t1}')
 
     @staticmethod
     def calculate_match_player_result(team_players_action):
@@ -175,6 +189,16 @@ class Match(BaseModel):
             sorted(yellow_cards),
             sorted(red_cards)
         )
+
+    @staticmethod
+    def represent_field(data_team_1: dict):
+        x = {}
+        for k, v in data_team_1.items():
+            if type(v) is not list:
+                v = [v]
+            tuple_ = TeamPlayer.objects.filter(id__in=v).values_list('id', 'key', flat=False)
+            x[k] = list(tuple_)
+        return x
 
 
 class TeamPlayerAction(BaseModel):
@@ -244,7 +268,7 @@ class MatchResult(BaseModel):
     is_processed = models.BooleanField(verbose_name=_('is processed'), default=False,
                                        help_text='after all player predicts calculated change to True')
 
-    # def save(self,*args,**kwargs):
+    represent_field = models.JSONField(verbose_name=_("represent field"), null=True, blank=True)
 
     class Meta:
         verbose_name = _("Match Result")

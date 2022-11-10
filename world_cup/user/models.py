@@ -13,6 +13,7 @@ from common.models import BaseModel
 from common.utils.validators import mobile_regex
 from football.choices import WinnerChoices
 from football.models import Match, TeamPlayer
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 class User(AbstractUser, BaseModel):
@@ -40,7 +41,7 @@ class User(AbstractUser, BaseModel):
         return f'{self.first_name} {self.last_name}' if self.first_name or self.last_name else self.username
 
     @property
-    def player(self):
+    def player_(self):
         try:
             player = cache.get(f'{Player.__module__}({self.pk})')
             if player:
@@ -78,6 +79,26 @@ class User(AbstractUser, BaseModel):
         if self.username in [os.environ.get('SYSTEM_USER_NAME'), os.environ.get('ROOT_USER_NAME')]:
             return super(User, self).delete(using=None, keep_parents=False)
 
+    def get_token(self):
+        if self.is_authenticated:
+            refresh = RefreshToken.for_user(self)
+        else:
+            return {}
+        token = {
+            'access': str(refresh.access_token),
+            'refresh': str(refresh),
+        }
+        return token
+
+    @staticmethod
+    def refresh_token(refresh):
+        refresh = RefreshToken(token=refresh)
+        token = {
+            'access': refresh.access_token,
+            'refresh': str(refresh),
+        }
+        return token
+
     class Meta:
         verbose_name = _("User")
         verbose_name_plural = _("Users")
@@ -97,13 +118,13 @@ class Player(User):
 
     client_version = models.PositiveIntegerField(verbose_name=_("Client version"), default=0, null=True, blank=True)
 
-    score = models.PositiveBigIntegerField(verbose_name=_('score'), null=True, blank=True)
+    score = models.PositiveBigIntegerField(verbose_name=_('score'), default=0)
 
     def rank(self, query=None):
         if not query:
             query = Player.objects.all()
 
-        queryset = query.filter(score__isnull=False).order_by('-score')
+        queryset = query.filter(score__gt=0).order_by('-score')
         if queryset:
             return list(queryset.values_list('pk', flat=True)).index(self.id) + 1
         return 0
@@ -145,29 +166,34 @@ class PredictionArrange(BaseModel):
     team_1_goals = models.PositiveIntegerField(verbose_name=_("team 1 goals"), )
     team_2_goals = models.PositiveIntegerField(verbose_name=_("team 2 goals"), )
 
-    best_player = models.ForeignKey(verbose_name=_('best_player'), to=TeamPlayer, on_delete=models.CASCADE, null=True,
-                                    blank=True)
+    best_player = models.ForeignKey(verbose_name=_('best_player'), to=TeamPlayer, on_delete=models.CASCADE)
     winner = models.IntegerField(verbose_name=_('winner'), choices=WinnerChoices.choices)
     is_penalty = models.BooleanField(verbose_name=_('is penalty'), default=False)
 
     arrange_1_list = ArrayField(verbose_name=_("arrange 1 list"), base_field=models.IntegerField(), default=list)
     arrange_2_list = ArrayField(verbose_name=_("arrange 2 list"), base_field=models.IntegerField(), default=list)
-    goal_1_list = ArrayField(verbose_name=_("goal 1 list"), base_field=models.IntegerField(), default=list)
-    goal_2_list = ArrayField(verbose_name=_("goal 2 list"), base_field=models.IntegerField(), default=list)
-    goal_assist_1_list = ArrayField(verbose_name=_("goal assist 1 list"), base_field=models.IntegerField(),
-                                    default=list)
-    goal_assist_2_list = ArrayField(verbose_name=_("goal assist 2 list"), base_field=models.IntegerField(),
-                                    default=list)
-    yellow_card_1_list = ArrayField(verbose_name=_("yellow card 1 list"), base_field=models.IntegerField(),
-                                    default=list)
-    yellow_card_2_list = ArrayField(verbose_name=_("yellow card 2 list"), base_field=models.IntegerField(),
-                                    default=list)
-    red_card_1_list = ArrayField(verbose_name=_("red card 1 list"), base_field=models.IntegerField(), default=list)
-    red_card_2_list = ArrayField(verbose_name=_("red card 2 list"), base_field=models.IntegerField(), default=list)
-    change_1_list = ArrayField(verbose_name=_("change 1 list"), base_field=models.IntegerField(), default=list)
-    change_2_list = ArrayField(verbose_name=_("change 2 list"), base_field=models.IntegerField(), default=list)
+    goal_1_list = ArrayField(verbose_name=_("goal 1 list"), base_field=models.IntegerField(), null=True, blank=True,
+                             default=list)
+    goal_2_list = ArrayField(verbose_name=_("goal 2 list"), base_field=models.IntegerField(), null=True, blank=True,
+                             default=list)
+    goal_assist_1_list = ArrayField(verbose_name=_("goal assist 1 list"), base_field=models.IntegerField(), null=True,
+                                    blank=True, default=list)
+    goal_assist_2_list = ArrayField(verbose_name=_("goal assist 2 list"), base_field=models.IntegerField(), null=True,
+                                    blank=True, default=list)
+    yellow_card_1_list = ArrayField(verbose_name=_("yellow card 1 list"), base_field=models.IntegerField(), null=True,
+                                    blank=True, default=list)
+    yellow_card_2_list = ArrayField(verbose_name=_("yellow card 2 list"), base_field=models.IntegerField(), null=True,
+                                    blank=True, default=list)
+    red_card_1_list = ArrayField(verbose_name=_("red card 1 list"), base_field=models.IntegerField(), null=True,
+                                 blank=True, default=list)
+    red_card_2_list = ArrayField(verbose_name=_("red card 2 list"), base_field=models.IntegerField(), null=True,
+                                 blank=True, default=list)
+    change_1_list = ArrayField(verbose_name=_("change 1 list"), base_field=models.IntegerField(), null=True, blank=True,
+                               default=list)
+    change_2_list = ArrayField(verbose_name=_("change 2 list"), base_field=models.IntegerField(), null=True, blank=True,
+                               default=list)
 
-    point = models.IntegerField(verbose_name=_("score"), null=True, blank=True,
+    point = models.IntegerField(verbose_name=_("Point"), null=True, blank=True,
                                 help_text="Points earned from correct predictions.")
 
     is_processed = models.BooleanField(verbose_name=_('is processed'), default=False,
