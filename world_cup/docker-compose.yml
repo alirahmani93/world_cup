@@ -15,7 +15,7 @@ services:
   web:
     build: .
     command: sh -c "python manage.py migrate &&
-      python manage.py setup
+      python manage.py setup &&
       yes | python manage.py collectstatic --no-input &&
       gunicorn ${PROJECT_NAME}.wsgi:application --workers=${GUNICORN_WORKERS} --access-logfile=/tmp/gunicorn.log --bind 0.0.0.0:${GUNICORN_PORT}"
     volumes:
