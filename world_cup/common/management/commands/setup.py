@@ -35,7 +35,7 @@ class Command(BaseCommand):
                 is_staff=True, is_superuser=True
             )
             if is_created:
-                admin.set_password('123456')
+                admin.set_password(settings.ROOT_USER_PASSWORD)
                 admin.save()
                 print('super user created')
             else:
@@ -52,7 +52,7 @@ class Command(BaseCommand):
                 is_staff=True, is_superuser=True
             )
             if is_created:
-                system.set_password('123456')
+                system.set_password(settings.SYSTEM_USER_PASSWORD)
                 system.save()
                 print('system user created')
             else:
