@@ -12,14 +12,27 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
 
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4:latest
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    ports:
+      - ${PGADMIN_PORT}:80
+    restart: "unless-stopped"
+    env_file:
+      - ./.env
+
+
   web:
-    build: .
-    # image: world_cup_web:latest
+#    build: .
+    image: world_cup_web:latest
     command: sh -c "python manage.py migrate &&
       python manage.py setup &&
       yes | python manage.py collectstatic --no-input &&
       celery -A ${PROJECT_NAME} worker --loglevel=info --without-mingle -Ofair -l INFO --logfile=logs/celery.log  --concurrency=${CELERY_CONCURRENCY} -n worker1@%h --detach &&
       gunicorn ${PROJECT_NAME}.wsgi:application --workers=${GUNICORN_WORKERS} --access-logfile=/tmp/gunicorn.log --bind 0.0.0.0:${GUNICORN_PORT}"
+
     volumes:
       - .:/app
       - ./logs/:/app/logs/
@@ -73,3 +86,4 @@ volumes:
   static_volume:
   media_volume:
   postgres_data:
+  pgadmin:
