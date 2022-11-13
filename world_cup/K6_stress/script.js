@@ -29,41 +29,41 @@ const myGauge = new Counter('my_gauge');      // A metric that stores the min, m
 const myRate = new Counter('my_rate');        // A metric that tracks the percentage of added values that are non-zero.
 const myTrend = new Counter('my_trend');      // A metric that allows for calculating statistics on the added values (min, max, average and percentiles).
 
-const baseUrl = "79.175.131.40:8000"
+const baseUrl = "http://79.175.131.40:8000"
 
 let settings = [
 
-    // {
-    //     "url": baseUrl,
-    //     "method": "GET",
-    //     "timeout": 1,
-    //     "headers": null,
-    // },
+     {
+         "url": baseUrl + '/api/football/team/1/?with_player=True',
+         "method": "GET",
+         "timeout": 0,
+         "headers": null,
+     },
     {
         "url": baseUrl + "/api/common/configuration/",
         "method": "GET",
         "timeout": 0,
         "headers": null,
     },
-    // {
-    //     "url": baseUrl + "/api/player/login/",
-    //     "method": "POST",
-    //     "timeout": 5,
-    //     "headers": {
-    //         "Content-Type": "application/json"
-    //     },
-    //     "data": JSON.stringify({ // data registered from sso
-    //         "id": makeid(9),  // add your player id
-    //         "username": makeUsername(6), // add your username
-    //     }),
-    // },
-    // {
-    //     "url": baseUrl + "/api/player/leaderboard/",
-    //     "method": "GET",
-    //     "timeout": 0,
-    //     "headers": null,
-    //     "data": null,
-    // },
+     {
+         "url": baseUrl + "/api/player/login/",
+         "method": "POST",
+         "timeout": 5,
+         "headers": {
+             "Content-Type": "application/json"
+         },
+         "data": JSON.stringify({ // data registered from sso
+             "id": makeid(9),  // add your player id
+             "username": makeUsername(6), // add your username
+         }),
+     },
+     {
+         "url": baseUrl + "/api/player/leaderboard/",
+         "method": "GET",
+         "timeout": 0,
+         "headers": null,
+         "data": null,
+     },
 ];
 
 function consoleStatusMessage(result) {
@@ -117,6 +117,7 @@ function SendRequest(item, url, payload, params) {
     var result = null
 
     if (item.method == "GET") {
+       console.log('>>>>A')
         result = http.get(url, payload, params);
     } else if (item.method == "POST") {
         result = http.post(url, payload, params);
@@ -129,8 +130,8 @@ function SendRequest(item, url, payload, params) {
 };
 
 export const option = {
-    vus: 10,
-    duration: '2s',
+//    vus: 100,
+//    duration: '2s',
 
     stages: [
         {duration: '5m', target: 60}, // simulate ramp-up of traffic from 1 to 60 users over 5 minutes.
@@ -157,35 +158,28 @@ export const option = {
     }
 };
 
-// export default function () {
-//     myGauge.add(1);
-//     myGauge.add(2);
-//     myTrend.add(1);
-//     myTrend.add(4);
-//
-//     for (let i = 0; i < settings.length; i++) {
-//         myCounter.add(1);
-//         let item = settings[i]
-//         console.log(item.url)
-//
-//         const url = item.url;
-//         const payload = item.data;
-//
-//         const params = {
-//             headers: item.headers,
-//         };
-//         console.log(params)
-//         var result = SendRequest(item, url, payload, params)
-//         CheckResultStatus(result)
-//         consoleStatusMessage(result)
-// //        console.log(result)
-// //        sleep(1);
-//     }
-// };
-export default function () {
-    let x = ''
-    x = http.get(baseUrl);
-    console.log(x)
+ export default function () {
+     myGauge.add(1);
+     myGauge.add(2);
+     myTrend.add(1);
+     myTrend.add(4);
 
-    sleep(2);
-}
+     for (let i = 0; i < settings.length; i++) {
+         myCounter.add(1);
+         let item = settings[i]
+         console.log(item.url)
+
+         const url = item.url;
+         const payload = item.data;
+
+         const params = {
+             headers: item.headers,
+        };
+         console.log(url,payload,params)
+         var result = SendRequest(item, url, payload, params)
+         CheckResultStatus(result)
+         consoleStatusMessage(result)
+         console.log(result)
+// //        sleep(1);
+     }
+ };
