@@ -59,3 +59,11 @@ or
 ```
 $ docker-compose down && docker-compose up -d 
 ```
+
+# K6 Stress Test
+
+> docker run --rm -i grafana/k6 run --vus 1 --duration 2s - < script.js
+ 
+or
+
+>  k6 run -e SCENARIOS=TestServer script.js
