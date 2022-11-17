@@ -1,3 +1,5 @@
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter
@@ -28,6 +30,13 @@ class MatchViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
             return self.serializer_classes[self.action]
         return self.serializer_class
 
+    @method_decorator(cache_page(60))
+    def list(self, request, *args, **kwargs):
+        return super(MatchViewSet, self).list(request, *args, **kwargs)
+
+    def retrieve(self, request, *args, **kwargs):
+        return super(MatchViewSet, self).retrieve(request, *args, **kwargs)
+
 
 class TeamViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
     queryset = Team.objects.filter(is_active=True)
@@ -38,15 +47,13 @@ class TeamViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
             return TeamWithTeamPlayerSerializer
         return self.serializer_class
 
-    @action(
-        methods=["GET"], url_path='temp', url_name='temp', detail=False,
-        permission_classes=[AllowAny])
-    def temp(self, *args, **kwargs):
-        from .tasks import calculate
-        t1 = get_now()
-        calculate(match=Match.objects.last())
-        print('\x1b[0;31;40m calculation time: ', get_now() - t1, )
-        return custom_response(data={}, status_code=statuses.OK_200)
+    @method_decorator(cache_page(60))
+    def list(self, request, *args, **kwargs):
+        return super(TeamViewSet, self).list(request, *args, **kwargs)
+
+    @method_decorator(cache_page(60))
+    def retrieve(self, request, *args, **kwargs):
+        return super(TeamViewSet, self).retrieve(request, *args, **kwargs)
 
 
 class MatchResultViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
@@ -55,3 +62,7 @@ class MatchResultViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_fields = ["match", "winner", 'is_penalty', 'is_processed']
     ordering_fields = ['created_time', 'is_processed', 'is_penalty']
+
+    @method_decorator(cache_page(60))
+    def list(self, request, *args, **kwargs):
+        return super(MatchResultViewSet, self).list(request, *args, **kwargs)
