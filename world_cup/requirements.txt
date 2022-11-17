@@ -9,4 +9,5 @@ django-celery-results==2.4.0
 django-celery-beat==2.3.0
 django_redis==5.2.0
 djangorestframework_simplejwt==5.1.0
+django-admin-list-filter-dropdown==1.0.3
 django
