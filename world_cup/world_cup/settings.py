@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DEBUG = int(os.getenv('DEBUG', default=True))
-ALLOWED_HOSTS =['*'] #os.getenv("ALLOWED_HOSTS", "127.0.0.1,0.0.0.0").split(",")
+ALLOWED_HOSTS = ['*']  # os.getenv("ALLOWED_HOSTS", "127.0.0.1,0.0.0.0").split(",")
 
 CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', default='http://localhost,http://127.0.0.1').split(',')
 
@@ -23,6 +23,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     "django_filters",
+    "django_admin_listfilter_dropdown",
 
     "django_redis",
     # "django_celery_results",

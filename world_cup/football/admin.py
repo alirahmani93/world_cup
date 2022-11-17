@@ -1,5 +1,7 @@
 from django.contrib import admin, messages
 from django.utils.translation import gettext_lazy as _
+from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter, ChoiceDropdownFilter, SimpleDropdownFilter
+
 from common.admin import GeneralAdmin, BaseInline
 from common.utils.time import get_now
 from .choices import MatchStatus
@@ -62,14 +64,18 @@ class TeamPlayerActionsInline(BaseInline):
 class TeamAdmin(GeneralAdmin):
     radio_fields = {'continent': admin.HORIZONTAL, 'group': admin.HORIZONTAL, 'current_level': admin.HORIZONTAL}
     list_display = ['name', 'continent', 'group', 'current_level', ]
-
+    list_filter = (
+        ('continent', ChoiceDropdownFilter),
+        ('group', ChoiceDropdownFilter),
+        ('current_level', ChoiceDropdownFilter)
+    )
     inlines = [TeamPlayerInline]
 
 
 @admin.register(TeamPlayer)
 class TeamPlayerAdmin(GeneralAdmin):
     list_display = ['first_name', 'last_name', 'number', 'team', 'is_banned_next_match', 'rank', ]
-    list_filter = ['team', 'is_banned_next_match', 'rank', ]
+    list_filter = [('team', RelatedDropdownFilter), 'is_banned_next_match', 'rank', ]
     search_fields = ['first_name', 'last_name', 'number', 'team__name']
     search_help_text = 'first_name, last_name, number, team__name'
 
@@ -79,7 +85,9 @@ class MatchAdmin(GeneralAdmin):
     list_display = ['team_1', 'team_2', 'start_time', 'end_time',
                     'level', 'status',
                     'winner', 'is_penalty', ]
-    list_filter = ['team_1', 'team_2', 'level', 'status', 'winner', 'is_penalty', ]
+    list_filter = [('team_1', RelatedDropdownFilter), ('team_2', RelatedDropdownFilter),
+                   ('level', ChoiceDropdownFilter), ('status', ChoiceDropdownFilter), 'winner',
+                   'is_penalty', ]
     search_fields = ['team_1', 'team_2', 'level', 'status', 'winner', 'is_penalty', ]
     search_help_text = 'team_1, team_2, level, status, winner, is_penalty'
 
@@ -108,11 +116,11 @@ class MatchAdmin(GeneralAdmin):
 
 @admin.register(MatchResult)
 class MatchResultAdmin(GeneralAdmin):
-    list_filter = ['match', 'winner', 'is_penalty', ]
+    list_filter = ['winner', 'is_penalty','is_processed' ]
     list_display = ['match', 'winner', 'is_penalty', 'is_processed', 'best_player_id']
     search_fields = ['match']
     search_help_text = 'match'
-    readonly_fields = ('is_processed',)  
+    readonly_fields = ('is_processed',)
     actions = ['change_process']
 
     def change_process(self, request, queryset):

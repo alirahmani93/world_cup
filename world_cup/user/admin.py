@@ -42,9 +42,14 @@ class PlayerAdmin(BaseAdmin):
 @admin.register(PredictionArrange)
 class PredictionArrangeAdmin(BaseAdmin):
     list_display = ('player', 'match', 'winner', 'is_penalty',)
-    list_filter = ('is_active', 'is_penalty', 'winner', 'is_processed')
-    search_fields = ('player_mobile_number', 'player_username', 'player_profile_name', 'uuid', 'id', 'match',)
-    readonly_fields = ('is_processed',)
+    list_filter = ('is_active', 'is_penalty', 'winner', 'is_processed', 'match')
+    search_fields = (
+        'match__team_1__name','match__team_2__name',
+        'player__username', 'player__mobile_number', 'player__profile_name', 'uuid', 'id',)
+    readonly_fields = (
+        'is_processed',
+        'player'
+    )
 
     def save_model(self, request, obj, form, change):
         try:
@@ -53,4 +58,9 @@ class PredictionArrangeAdmin(BaseAdmin):
             return self.message_user(request, e, messages.ERROR)
 
 
-admin.site.register(Feedback)
+@admin.register(Feedback)
+class FeedbackAdmin(BaseAdmin):
+    list_display = ('player', 'short_description')
+    search_fields = ('player__username', 'player__mobile_number', 'player__profile_name',)
+    readonly_fields = ('player',)
+    list_filter = ('created_time', 'is_resolved')
