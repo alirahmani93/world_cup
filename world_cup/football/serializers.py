@@ -36,6 +36,8 @@ class MatchSerializer(serializers.ModelSerializer):
 
 
 class MatchResultSerializer(serializers.ModelSerializer):
+    match = MatchSerializer()
+
     class Meta:
         model = MatchResult
         exclude = excluded_fields
