@@ -49,6 +49,7 @@ class PredictSerializer(serializers.ModelSerializer):
         exclude = excluded_fields
         extra_kwargs = {
             'point': {'read_only': True},
+            'points_detail': {'read_only': True},
             'is_processed': {'read_only': True},
             'is_active': {'read_only': True},
         }

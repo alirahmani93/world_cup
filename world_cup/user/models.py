@@ -195,7 +195,7 @@ class PredictionArrange(BaseModel):
 
     point = models.IntegerField(verbose_name=_("Point"), null=True, blank=True,
                                 help_text="Points earned from correct predictions.")
-
+    points_detail = models.JSONField(verbose_name=_("points detail"), default=dict, blank=True, null=True)
     is_processed = models.BooleanField(verbose_name=_('is processed'), default=False,
                                        help_text='after all player predicts calculated change to True')
 

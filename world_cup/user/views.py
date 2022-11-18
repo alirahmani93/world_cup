@@ -89,10 +89,13 @@ class PlayerViewSets(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Cr
 
         player, is_created = Player.objects.get_or_create(username=validated_data['username'], **{
             'mobile_number': validated_data['id'],
-            'is_active': True
+            'is_active': True,
+            "is_verified": True,
+            "profile_name": validated_data['username'],
         })
-        if is_created:
-            player.is_verified = True
+        if not is_created and player.is_blocked:
+            return custom_response(data={}, status_code=statuses.PLAYER_BLOCKED_453)
+
         serializer = PlayerSerializer(player)
         return custom_response(data=serializer.data, status_code=statuses.OK_200)
 
@@ -126,11 +129,13 @@ class PlayerPredictViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mix
         return self.queryset if self.request.user.is_superuser else self.queryset.filter(player=self.request.user.pk)
 
     def create(self, request, *args, **kwargs):
+        request.data['player'] = request.user.id
         serializer = self.serializer_class(data=self.request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
-
+        duration = Configuration.load().last_prediction_till_start_match_duration
         match: Match = data['match']
-        if match.status != MatchStatus.NOT_STARTED:
+        if match.status != MatchStatus.NOT_STARTED or match.start_time - get_now() < duration:
             return custom_response(data={}, status_code=statuses.PREDICTION_TIME_OVER_470)
+
         return super(PlayerPredictViewSet, self).create(request, *args, **kwargs)
