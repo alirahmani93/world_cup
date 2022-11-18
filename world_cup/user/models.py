@@ -27,8 +27,7 @@ class User(AbstractUser, BaseModel):
         return f'MED-{uuid.uuid4().hex[:6]}'
 
     token = models.CharField(verbose_name=_("Token"), max_length=255, null=True, blank=True, default=generate_token)
-    mobile_number = models.CharField(verbose_name=_("Mobile number"), max_length=31, unique=True,
-                                     validators=[mobile_regex], )
+    mobile_number = models.CharField(verbose_name=_("Mobile number"), max_length=31, unique=True, )
 
     REQUIRED_FIELDS = ['mobile_number']
 
