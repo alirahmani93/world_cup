@@ -86,14 +86,21 @@ class PlayerViewSets(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Cr
         serializer = self.serializer_class(data=self.request.data)
         serializer.is_valid(raise_exception=True)
         validated_data = serializer.validated_data
+        player = Player.objects.filter(username=validated_data['username'], mobile_number=validated_data['id'])
+        if not player.exists():
+            player = Player.objects.create(
+                username=validated_data['username'],
+                mobile_number=validated_data['id'],
+                is_active=True,
+                is_verified=True,
+                profile_name=validated_data['username'],
+                last_login=get_now()
 
-        player, is_created = Player.objects.get_or_create(username=validated_data['username'], **{
-            'mobile_number': validated_data['id'],
-            'is_active': True,
-            "is_verified": True,
-            "profile_name": validated_data['username'],
-        })
-        if not is_created and player.is_blocked:
+            )
+        else:
+            player = player.first()
+
+        if player.is_blocked:
             return custom_response(data={}, status_code=statuses.PLAYER_BLOCKED_453)
 
         serializer = PlayerSerializer(player)
