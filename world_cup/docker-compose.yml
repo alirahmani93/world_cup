@@ -23,6 +23,16 @@ services:
     env_file:
       - ./.env
 
+  redis:
+    image: redis:latest
+    container_name: redis_wo
+    ports:
+      - ${REDIS_PORT}:6379
+    restart: unless-stopped
+    command: redis-server --save ${REDIS_DUMP_INTERVAL} 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis:/data
+
 
   web:
 #    build: .
@@ -87,3 +97,5 @@ volumes:
   media_volume:
   postgres_data:
   pgadmin:
+  redis:
+    driver: local
