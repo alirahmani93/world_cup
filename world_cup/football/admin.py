@@ -14,7 +14,7 @@ class TeamPlayerInline(BaseInline):
         (
             'General Info', {
                 'fields': (
-                    ('is_active', 'team', 'number'),
+                    ('is_active', 'team', 'number', 'role',),
                 )
             }
         ),
@@ -35,6 +35,7 @@ class TeamPlayerInline(BaseInline):
 class TeamPlayerActionsInline(BaseInline):
     model = TeamPlayerAction
     fk_name = 'match'
+    raw_id_fields = ('player',)
 
     fieldsets = (
         (
@@ -68,10 +69,11 @@ class TeamAdmin(GeneralAdmin):
 
 @admin.register(TeamPlayer)
 class TeamPlayerAdmin(GeneralAdmin):
-    list_display = ['first_name', 'last_name', 'number', 'team', 'is_banned_next_match', 'rank', ]
-    list_filter = ['team', 'is_banned_next_match', 'rank', ]
+    list_display = ['first_name', 'last_name', 'number', 'team', 'is_banned_next_match', 'rank', 'role']
+    list_filter = ['team', 'is_banned_next_match', 'rank', 'role', ]
     search_fields = ['first_name', 'last_name', 'number', 'team__name']
     search_help_text = 'first_name, last_name, number, team__name'
+    raw_id_fields = ('team',)
 
 
 @admin.register(Match)
@@ -112,8 +114,9 @@ class MatchResultAdmin(GeneralAdmin):
     list_display = ['match', 'winner', 'is_penalty', 'is_processed', 'best_player_id']
     search_fields = ['match']
     search_help_text = 'match'
-    readonly_fields = ('is_processed',)  
+    readonly_fields = ('is_processed',)
     actions = ['change_process']
+    raw_id_fields = ('match',)
 
     def change_process(self, request, queryset):
         """
