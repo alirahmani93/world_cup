@@ -1,3 +1,4 @@
+import datetime
 from uuid import uuid4
 from django.core.validators import MaxValueValidator
 from django.conf import settings
@@ -5,7 +6,6 @@ from django.core.cache import cache
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from common.choices import SMSModeKeys
 from common.utils.time import standard_response_datetime, get_now
 from common.utils.validators import version_regex
 
@@ -61,6 +61,10 @@ class Configuration(SingletonBaseModel):
     minimum_supported_bundle_version = models.PositiveIntegerField(
         verbose_name=_("minimum supported bundle version"), default=1, )
     by_pass_sms = models.BooleanField(verbose_name=_("by pass sms"), default=False)
+    last_prediction_till_start_match_duration = models.DurationField(
+        verbose_name=_("duration of last prediction time until start match"),
+        default=datetime.timedelta(minutes=5),
+        help_text="day hour:minute:second")
 
     @property
     def server_time_zone(self):
