@@ -66,4 +66,4 @@ $ docker-compose down && docker-compose up -d
  
 or
 
->  k6 run -e SCENARIOS=TestServer script.js
+> k6 run -u=10 -d=1s --no-vu-connection-reuse  -e SCENARIOS=TestServer K6_stress/script.js

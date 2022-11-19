@@ -34,7 +34,19 @@ const baseUrl = "http://79.175.131.40:8000"
 let settings = [
 
      {
-         "url": baseUrl + '/api/football/team/1/?with_player=True',
+         "url": baseUrl + '/api/football/match/',
+         "method": "GET",
+         "timeout": 0,
+         "headers": null,
+     },
+     {
+         "url": baseUrl + '/api/football/match/',
+         "method": "GET",
+         "timeout": 0,
+         "headers": null,
+     },
+     {
+         "url": baseUrl + '/api/football/team/?with_player=True',
          "method": "GET",
          "timeout": 0,
          "headers": null,
@@ -117,7 +129,7 @@ function SendRequest(item, url, payload, params) {
     var result = null
 
     if (item.method == "GET") {
-       console.log('>>>>A')
+       // console.log('>>>>A')
         result = http.get(url, payload, params);
     } else if (item.method == "POST") {
         result = http.post(url, payload, params);
@@ -175,11 +187,11 @@ export const option = {
          const params = {
              headers: item.headers,
         };
-         console.log(url,payload,params)
+         // console.log(url,payload,params)
          var result = SendRequest(item, url, payload, params)
          CheckResultStatus(result)
          consoleStatusMessage(result)
-         console.log(result)
+         // console.log(result)
 // //        sleep(1);
      }
  };
