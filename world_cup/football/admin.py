@@ -16,7 +16,7 @@ class TeamPlayerInline(BaseInline):
         (
             'General Info', {
                 'fields': (
-                    ('is_active', 'team', 'number'),
+                    ('is_active', 'team', 'number', 'role',),
                 )
             }
         ),
@@ -37,6 +37,7 @@ class TeamPlayerInline(BaseInline):
 class TeamPlayerActionsInline(BaseInline):
     model = TeamPlayerAction
     fk_name = 'match'
+    raw_id_fields = ('player',)
 
     fieldsets = (
         (
@@ -74,10 +75,11 @@ class TeamAdmin(GeneralAdmin):
 
 @admin.register(TeamPlayer)
 class TeamPlayerAdmin(GeneralAdmin):
-    list_display = ['first_name', 'last_name', 'number', 'team', 'is_banned_next_match', 'rank', ]
-    list_filter = [('team', RelatedDropdownFilter), 'is_banned_next_match', 'rank', ]
+    list_display = ['first_name', 'last_name', 'number', 'team', 'is_banned_next_match', 'rank','role' ]
+    list_filter = [('team', RelatedDropdownFilter), 'is_banned_next_match', 'rank','role' ]
     search_fields = ['first_name', 'last_name', 'number', 'team__name']
     search_help_text = 'first_name, last_name, number, team__name'
+    raw_id_fields = ('team',)
 
 
 @admin.register(Match)

@@ -25,10 +25,12 @@ class UserAdmin(_UserAdmin, BaseAdmin):
 
 @admin.register(Player)
 class PlayerAdmin(BaseAdmin):
-    list_display = ('username', 'mobile_number', 'email',)
+    list_display = ('username', 'mobile_number', 'email', 'score')
     list_filter = ('is_active', 'is_staff', 'is_superuser', 'is_blocked',)
     search_fields = ('mobile_number', 'username', 'profile_name', 'uuid', 'id', 'first_name', 'last_name',)
-    readonly_fields = ('token', 'uuid', 'date_joined', 'last_login', 'updated_time')
+    readonly_fields = ('token', 'uuid', 'date_joined', 'last_login', 'updated_time',
+                       # 'score',
+                       )
 
     filter_horizontal = ('groups',)
 

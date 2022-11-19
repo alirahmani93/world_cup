@@ -27,8 +27,7 @@ class User(AbstractUser, BaseModel):
         return f'MED-{uuid.uuid4().hex[:6]}'
 
     token = models.CharField(verbose_name=_("Token"), max_length=255, null=True, blank=True, default=generate_token)
-    mobile_number = models.CharField(verbose_name=_("Mobile number"), max_length=31, unique=True,
-                                     validators=[mobile_regex], )
+    mobile_number = models.CharField(verbose_name=_("Mobile number"), max_length=31, unique=True, )
 
     REQUIRED_FIELDS = ['mobile_number']
 
@@ -195,9 +194,9 @@ class PredictionArrange(BaseModel):
 
     point = models.IntegerField(verbose_name=_("Point"), null=True, blank=True,
                                 help_text="Points earned from correct predictions.")
-
+    points_detail = models.JSONField(verbose_name=_("points detail"), default=dict, blank=True, null=True)
     is_processed = models.BooleanField(verbose_name=_('is processed'), default=False,
-                                       help_text='after all player predicts calculated change to True')
+                                       help_text='after player predicts calculated change to True')
 
     class Meta:
         unique_together = ('player', 'match')
