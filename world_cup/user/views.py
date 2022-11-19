@@ -28,7 +28,6 @@ class PlayerViewSets(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Cr
                      BaseViewSet):
     serializer_class = PlayerSerializer
     queryset = Player.objects.filter(is_active=True)
-    # pagination_class = ResponsePaginator
     permission_classes = [AllowAny, ]
 
     def get_queryset(self):
@@ -83,6 +82,11 @@ class PlayerViewSets(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Cr
         serializer_class=PlayerLogInMobileSerializer, pagination_class=ResponsePaginator,
         permission_classes=[AllowAny])
     def login(self, *args, **kwargs):
+        """
+        Username and phone number values are asked from SSO through an api in the application and sent to the server.
+
+        I know it's strange, but the employer wants it that way :)
+        """
         serializer = self.serializer_class(data=self.request.data)
         serializer.is_valid(raise_exception=True)
         validated_data = serializer.validated_data
@@ -115,7 +119,6 @@ class PlayerViewSets(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Cr
         serializer.is_valid(raise_exception=True)
         validated_data = serializer.validated_data
         otp = random_code(numeric=True, stringify=False, number_length=6)
-        print(otp)
         cache.set(validated_data['mobile_number'], str(otp), settings.CACHE_EXPIRATION_OTP_TIME)
         sms_adapter.send_sms(receptor=validated_data['mobile_number'], template=SMSModeKeys.SIGNUP, token=otp)
 
