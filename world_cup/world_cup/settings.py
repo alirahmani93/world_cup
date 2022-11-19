@@ -23,6 +23,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     "django_filters",
+    "corsheaders",
 
     "django_redis",
     # "django_celery_results",
@@ -36,6 +37,8 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -185,5 +188,10 @@ SEND_SMS_VERIFY = 'https://api.kavenegar.com/v1/{}/verify/lookup.json'.format(SM
 SEND_SMS_URL = 'https://api.kavenegar.com/v1/{}/sms/send.json'.format(SMS_PANEL_API_KEY)
 
 # CORS
-CORS_ORIGIN_ALLOW_ALL = os.getenv("CORS_ORIGIN_ALLOW_ALL", 0)
-CORS_ORIGIN_WHITELIST = os.getenv("CORS_ORIGIN_WHITELIST", "http://127.0.0.1:8001").split(",")
+#CORS_ORIGIN_ALLOW_ALL = bool(os.getenv("CORS_ORIGIN_ALLOW_ALL", 0))
+CORS_ALLOW_ALL_ORIGINS= True
+#CORS_ORIGIN_WHITELIST = os.getenv("CORS_ORIGIN_WHITELIST", "http://127.0.0.1:8001").split(",")
+#CORS_ALLOWED_ORIGINS=['*']
+
+CORS_ORIGIN_ALLOW_ALL=True
+#CORS_ORIGIN_WHITELIST=

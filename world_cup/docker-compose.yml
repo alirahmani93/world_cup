@@ -36,7 +36,7 @@ services:
 
   web:
 #    build: .
-    image: world_cup_web:latest
+    image: world_cup:4
     command: sh -c "python manage.py migrate &&
       python manage.py setup &&
       yes | python manage.py collectstatic --no-input &&
