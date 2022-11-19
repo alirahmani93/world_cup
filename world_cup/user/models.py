@@ -124,7 +124,7 @@ class Player(User):
             query = Player.objects.all()
 
         queryset = query.filter(score__gt=0).order_by('-score')
-        if queryset:
+        if queryset and queryset.filter(id=self.id).exists():
             return list(queryset.values_list('pk', flat=True)).index(self.id) + 1
         return 0
 
