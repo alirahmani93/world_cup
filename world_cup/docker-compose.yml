@@ -41,6 +41,9 @@ services:
       python manage.py setup &&
       yes | python manage.py collectstatic --no-input &&
       celery -A ${PROJECT_NAME} worker --loglevel=info --without-mingle -Ofair -l INFO --logfile=logs/celery.log  --concurrency=${CELERY_CONCURRENCY} -n worker1@%h --detach &&
+      celery -A ${PROJECT_NAME} worker --loglevel=info --without-mingle -Ofair -l INFO --logfile=logs/celery.log  --concurrency=${CELERY_CONCURRENCY} -n worker1@%h --detach &&
+      celery -A ${PROJECT_NAME} worker --loglevel=info --without-mingle -Ofair -l INFO --logfile=logs/celery.log  --concurrency=${CELERY_CONCURRENCY} -n worker1@%h --detach &&
+      celery -A ${PROJECT_NAME} worker --loglevel=info --without-mingle -Ofair -l INFO --logfile=logs/celery.log  --concurrency=${CELERY_CONCURRENCY} -n worker1@%h --detach &&
       gunicorn ${PROJECT_NAME}.wsgi:application --workers=${GUNICORN_WORKERS} --access-logfile=/tmp/gunicorn.log --bind 0.0.0.0:${GUNICORN_PORT}"
 
     volumes:
