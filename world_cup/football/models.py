@@ -31,6 +31,7 @@ class TeamPlayer(BaseModel):
     is_banned_next_match = models.BooleanField(verbose_name=_("is banned next match"), default=False)
     rank = models.FloatField(verbose_name=_("rank"), validators=[MinValueValidator(0.0), MaxValueValidator(10.0)])
     key = models.CharField(verbose_name=_('key'), max_length=255, unique=True)
+    role = models.IntegerField(verbose_name=_("role"), choices=TeamPlayerRole.choices, default=TeamPlayerRole.GK)
 
     @property
     def full_name(self):

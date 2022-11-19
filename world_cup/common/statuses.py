@@ -11,12 +11,18 @@ PLAYER_NOT_FOUND_450 = {
     'code': 'player_not_found',
     'number': 450
 }
+
 MATCH_NOT_FOUND_451 = {
     'detail': 'Match not found',
     'code': 'match_not_found',
     'number': 451
 }
 
+PLAYER_BLOCKED_453 = {
+    'detail': 'Player is block',
+    'code': 'player_is_block',
+    'number': 453
+}
 INVALID_OTP_460 = {
     'detail': 'Invalid OTP',
     'code': 'invalid_otp',
