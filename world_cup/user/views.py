@@ -90,6 +90,7 @@ class PlayerViewSets(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Cr
         serializer = self.serializer_class(data=self.request.data)
         serializer.is_valid(raise_exception=True)
         validated_data = serializer.validated_data
+
         player = Player.objects.filter(username=validated_data['username'], mobile_number=validated_data['id'])
         if not player.exists():
             player = Player.objects.create(
@@ -99,7 +100,6 @@ class PlayerViewSets(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Cr
                 is_verified=True,
                 profile_name=validated_data['username'],
                 last_login=get_now()
-
             )
         else:
             player = player.first()
