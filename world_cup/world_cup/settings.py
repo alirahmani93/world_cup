@@ -12,37 +12,37 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DEBUG = int(os.getenv('DEBUG', default=True))
 ALLOWED_HOSTS = ['*']  # os.getenv("ALLOWED_HOSTS", "127.0.0.1,0.0.0.0").split(",")
 
-CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', default='http://localhost,http://127.0.0.1').split(',')
+# CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', default='http://localhost,http://127.0.0.1').split(',')
 
 # CORS #########################
-CORS_ALLOW_ALL_ORIGINS= True
-CORS_ORIGIN_WHITELIST =['127.0.0.1' ,'127.0.0.1:8000','79.175.131.40','79.175.131.40:8000','79.175.131.40:80']
-#os.getenv("CORS_ORIGIN_WHITELIST", "http://127.0.0.1:8001").split(",")
-#CORS_ORIGIN_ALLOW_ALL=True
-CORS_ALLOW_CREDENTIALS=True
-CORS_REPLACE_HTTPS_REFERER=True
-CORS_ALLOW_HEADERS = [
-#'*',
-"X-ACCESS_TOKEN", "Access-Control-Allow-Origin", "Authorization", "Origin", "x-requested-with",
-"Content-Type",
-#"Content-Range", "Content-Disposition", "Content-Description"
-'Access-Control-Request-Method',
-#'Access-Control-Request-Headers',
-'Access-Control-Allow-Origin',
-#'Content-Type', 
-'Access-Control-Allow-Headers', 'Authorization', 'X-Requested-With',
-]
-#CORS_ALLOW_HEADERS = default_headers + (
-#    "access-control-allow-origin",
-#)
+# CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ORIGIN_WHITELIST = ['127.0.0.1', '127.0.0.1:8000', '79.175.131.40', '79.175.131.40:8000', '79.175.131.40:80']
+# os.getenv("CORS_ORIGIN_WHITELIST", "http://127.0.0.1:8001").split(",")
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+# CORS_REPLACE_HTTPS_REFERER = True
+# CORS_ALLOW_HEADERS = [
+#     # '*',
+#     "X-ACCESS_TOKEN", "Access-Control-Allow-Origin", "Authorization", "Origin", "x-requested-with",
+#     "Content-Type",
+#     # "Content-Range", "Content-Disposition", "Content-Description"
+#     'Access-Control-Request-Method',
+#     # 'Access-Control-Request-Headers',
+#     'Access-Control-Allow-Origin',
+#     # 'Content-Type',
+#     'Access-Control-Allow-Headers', 'Authorization', 'X-Requested-With',
+# ]
+CORS_ALLOW_HEADERS = default_headers + (
+    "access-control-allow-origin",
+)
 
 CSRF_TRUSTED_ORIGINS = [
     'http://79.175.131.40',
 ]
-CORS_ALLOWED_ORIGINS=[
+CORS_ALLOWED_ORIGINS = [
     'http://79.175.131.40',
-#    'http://79.175.131.40/Football1/', #?ut=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEyMzQ0NDc4OTAiLCJ1c2VybmFtZSI6InRlc3RBY2MyIn0.rHlDwOrBlDJARRDGEn8qAuGGNWW767pEdFRQ8cPG9cU',
-#    'http://79.175.131.40/Football/', #?ut=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEyMzQ0NDc4OTAiLCJ1c2VybmFtZSI6InRlc3RBY2MyIn0.rHlDwOrBlDJARRDGEn8qAuGGNWW767pEdFRQ8cPG9cU',
+
     'http://79.175.131.40:8000',
     'http://localhost:8000',
 
@@ -82,15 +82,17 @@ INSTALLED_APPS = [
     'football.apps.FootballConfig',
 ]
 
+CSRF_COOKIE_SECURE = False
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
 
-    'world_cup.mw.CorsPostCsrfMiddleware',
-    'world_cup.mw.CorsMiddleware',
-    'world_cup.mw.Fake2',
+    # 'world_cup.mw.CorsPostCsrfMiddleware',
+    # 'world_cup.mw.CorsMiddleware',
+    # 'world_cup.mw.Fake2',
 
-#    "corsheaders.middleware.CorsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -240,55 +242,54 @@ SEND_SMS_VERIFY = 'https://api.kavenegar.com/v1/{}/verify/lookup.json'.format(SM
 SEND_SMS_URL = 'https://api.kavenegar.com/v1/{}/sms/send.json'.format(SMS_PANEL_API_KEY)
 
 # CORS
-#CORS_ALLOW_ALL_ORIGINS= True
-#CORS_ORIGIN_WHITELIST = os.getenv("CORS_ORIGIN_WHITELIST", "http://127.0.0.1:8001").split(",")
-#CORS_ORIGIN_ALLOW_ALL=True
-#CORS_ALLOW_HEADERS = [
-#'*',
-#'accept',
-#'accept-encoding',
-#'authorization',
-#'content-type',
-#'dnt',
-#'origin',
-#'user-agent',
-#'x-csrftoken',
-#'x-requested-with',
-#'Access-Control-Allow-Origin',
-#'Content-Type', 'Access-Control-Allow-Headers', 'Authorization', 'X-Requested-With',
-#]
+# CORS_ALLOW_ALL_ORIGINS= True
+# CORS_ORIGIN_WHITELIST = os.getenv("CORS_ORIGIN_WHITELIST", "http://127.0.0.1:8001").split(",")
+# CORS_ORIGIN_ALLOW_ALL=True
+# CORS_ALLOW_HEADERS = [
+# '*',
+# 'accept',
+# 'accept-encoding',
+# 'authorization',
+# 'content-type',
+# 'dnt',
+# 'origin',
+# 'user-agent',
+# 'x-csrftoken',
+# 'x-requested-with',
+# 'Access-Control-Allow-Origin',
+# 'Content-Type', 'Access-Control-Allow-Headers', 'Authorization', 'X-Requested-With',
+# ]
 
-#CORS_ALLOW_METHODS = (
+# CORS_ALLOW_METHODS = (
 #    'DELETE',
 #    'GET',
 #    'OPTIONS',
 #    'PATCH',
 #    'POST',
 #    'PUT',
-#)
-#CSRF_TRUSTED_ORIGINS = [
+# )
+# CSRF_TRUSTED_ORIGINS = [
 #    'http://79.175.131.40',
-#]
-#CORS_ALLOWED_ORIGINS=[
+# ]
+# CORS_ALLOWED_ORIGINS=[
 #    'http://79.175.131.40',
 #    'http://79.175.131.40:3000',
 #    "http://localhost:3000",
 
-#]
+# ]
 
-#EVENTSTREAM_ALLOW_ORIGIN = "*"
-#EVENTSTREAM_ALLOW_CREDENTIALS = False
+# EVENTSTREAM_ALLOW_ORIGIN = "*"
+# EVENTSTREAM_ALLOW_CREDENTIALS = False
 
 ####################
-#from corsheaders.defaults import default_headers
-#CORS_ORIGIN_ALLOW_ALL = True
-#CORS_ALLOW_CREDENTIALS = False
-#CORS_REPLACE_HTTPS_REFERER = True
+# from corsheaders.defaults import default_headers
+# CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ALLOW_CREDENTIALS = False
+# CORS_REPLACE_HTTPS_REFERER = True
 
-#CORS_ALLOW_HEADERS = default_headers + (
+# CORS_ALLOW_HEADERS = default_headers + (
 #    'content-range',"access-control-allow-origin",
-#)
-#USE_X_FORWARDED_HOST = True
-#USE_X_FORWARDED_PORT = True
-#SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-
+# )
+# USE_X_FORWARDED_HOST = True
+# USE_X_FORWARDED_PORT = True
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
