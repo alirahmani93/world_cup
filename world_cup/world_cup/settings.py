@@ -21,6 +21,7 @@ CORS_ORIGIN_WHITELIST = ['127.0.0.1', '127.0.0.1:8000', '79.175.131.40', '79.175
 # os.getenv("CORS_ORIGIN_WHITELIST", "http://127.0.0.1:8001").split(",")
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True
 # CORS_REPLACE_HTTPS_REFERER = True
 # CORS_ALLOW_HEADERS = [
 #     # '*',
@@ -34,7 +35,7 @@ CORS_ALLOW_CREDENTIALS = True
 #     'Access-Control-Allow-Headers', 'Authorization', 'X-Requested-With',
 # ]
 CORS_ALLOW_HEADERS = default_headers + (
-    "access-control-allow-origin",
+   'access-control-allow-origin', 'access-control-allow-methods','access-control-allow-origin','access-control-allow-headers','access-control-request-method'
 )
 
 CSRF_TRUSTED_ORIGINS = [
@@ -154,7 +155,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Tehran'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
