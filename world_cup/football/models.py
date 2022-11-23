@@ -73,12 +73,12 @@ class Match(BaseModel):
                 raise Exception("bracket position needed!")
 
         if self.status == MatchStatus.FINISHED:
-            print(self.teamplayeraction_set.filter(is_best_player=True).count())
+            # print(self.teamplayeraction_set.filter(is_best_player=True).count())
             if self.teamplayeraction_set.filter(is_best_player=True).count() != 1:
                 raise ValueError('One Player must be a best player')
 
-            if not self.winner:
-                raise Exception("Who is winner?!")
+            # if not self.winner:
+            #     raise Exception("Who is winner?!")
             self.match_finish()
         super(Match, self).save(args, kwargs)
 
@@ -89,8 +89,8 @@ class Match(BaseModel):
     def match_finish(self):
         t1 = get_now()
 
-        team_players_1 = self.teamplayeraction_set.filter(player__team=self.team_1)
-        team_players_2 = self.teamplayeraction_set.filter(player__team=self.team_2)
+        team_players_1 = self.teamplayeraction_set.filter(player__team=self.team_1).select_related('player')
+        team_players_2 = self.teamplayeraction_set.filter(player__team=self.team_2).select_related('player')
 
         tg_1, bpi_1, gl_1, ga_1, ar_1, ch_1, yc_1, rc_1 = self.calculate_match_player_result(team_players_1)
         tg_2, bpi_2, gl_2, ga_2, ar_2, ch_2, yc_2, rc_2 = self.calculate_match_player_result(team_players_2)
@@ -161,20 +161,20 @@ class Match(BaseModel):
         yellow_cards = []
         red_cards = []
         for tp in team_players_action:
-            print('>>>>>>>', tp.goal, tp.assist_goal, tp.yellow_card)
-            arrange.append(tp.id)
+            tp_ = tp.player
+            arrange.append(tp_.id)
             total_goal += tp.goal
 
             if tp.goal:
-                goals.append(tp.id)
+                goals.append(tp_.id)
             if tp.assist_goal:
-                assist_goals.append(tp.id)
+                assist_goals.append(tp_.id)
             if tp.yellow_card:
-                yellow_cards.append(tp.id)
+                yellow_cards.append(tp_.id)
             if tp.red_card:
-                red_cards.append(tp.id)
+                red_cards.append(tp_.id)
             if tp.is_change:
-                changes.append(tp.id)
+                changes.append(tp_.id)
 
             if not best_player_id:
                 if tp.is_best_player:
