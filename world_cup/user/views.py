@@ -91,11 +91,11 @@ class PlayerViewSets(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Cr
         serializer.is_valid(raise_exception=True)
         validated_data = serializer.validated_data
 
-        player = Player.objects.filter(username=validated_data['username'], mobile_number=validated_data['id'])
+        player = Player.objects.filter(username=validated_data['id'])
         if not player.exists():
             player = Player.objects.create(
-                username=validated_data['username'],
-                mobile_number=validated_data['id'],
+                username=validated_data['id'],
+                mobile_number=validated_data['username'],
                 is_active=True,
                 is_verified=True,
                 profile_name=validated_data['username'],
