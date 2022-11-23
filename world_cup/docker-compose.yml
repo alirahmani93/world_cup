@@ -1,5 +1,11 @@
 version: '3.9'
 
+networks:
+  world_cup_net:
+    ipam:
+      config:
+        - subnet: 172.21.0.0/24
+
 services:
   db:
     image: postgres:14.4-alpine
@@ -11,6 +17,9 @@ services:
     container_name: postgres_wo
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+    networks:
+      world_cup_net:
+        ipv4_address: 172.21.0.4
 
   pgadmin:
     container_name: pgadmin
@@ -22,6 +31,9 @@ services:
     restart: "unless-stopped"
     env_file:
       - ./.env
+    networks:
+      world_cup_net:
+        ipv4_address: 172.21.0.5
 
   redis:
     image: redis:latest
@@ -32,7 +44,9 @@ services:
     command: redis-server --save ${REDIS_DUMP_INTERVAL} 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
     volumes:
       - redis:/data
-
+    networks:
+      world_cup_net:
+        ipv4_address: 172.21.0.6
 
   web:
 #    build: .
@@ -59,6 +73,9 @@ services:
     depends_on:
       - db
     restart: unless-stopped
+    networks:
+      world_cup_net:
+        ipv4_address: 172.21.0.3
 
   nginx:
     image: nginx:1.23.0-alpine
@@ -86,6 +103,9 @@ services:
       retries: 5
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    networks:
+      world_cup_net:
+        ipv4_address: 172.21.0.7
 
 
 #  certbot:
@@ -94,6 +114,9 @@ services:
 #    volumes:
 #      - ../certbot/www/:/var/www/certbot/:rw
 #      - ../certbot/conf/:/etc/letsencrypt/:rw
+#    networks:
+#      frontend:
+#        ipv4_address: 172.21.0.8
 
 volumes:
   static_volume:
