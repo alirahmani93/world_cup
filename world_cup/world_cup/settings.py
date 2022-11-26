@@ -12,7 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DEBUG = int(os.getenv('DEBUG', default=True))
 ALLOWED_HOSTS = ['*']  # os.getenv("ALLOWED_HOSTS", "127.0.0.1,0.0.0.0").split(",")
 
-# CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', default='http://localhost,http://127.0.0.1').split(',')
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', default='http://localhost,http://127.0.0.1').split(',')
 
 # CORS #########################
 # CORS_ALLOW_ALL_ORIGINS = True
@@ -39,7 +39,7 @@ CORS_ALLOW_HEADERS = default_headers + (
 )
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://79.175.131.40',
+    'http://79.175.131.40','https://back.sb.2022.dadehbazi.ir'
 ]
 CORS_ALLOWED_ORIGINS = [
     'http://79.175.131.40',
@@ -236,7 +236,7 @@ CELERY_ACCEPT_CONTENT = ['application/json', 'application/x-python-serialize']
 CELERY_TASK_SERIALIZER = 'pickle'
 CELERY_RESULT_SERIALIZER = 'pickle'
 CELERY_TIMEZONE = TIME_ZONE
-
+worker_cancel_long_running_tasks_on_connection_loss=True
 # SMS
 SMS_PANEL_API_KEY = os.environ.get('SMS_PANEL_API_KEY')
 SEND_SMS_VERIFY = 'https://api.kavenegar.com/v1/{}/verify/lookup.json'.format(SMS_PANEL_API_KEY)
