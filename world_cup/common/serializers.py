@@ -41,8 +41,8 @@ class ConfigurationSerializers(ModelSerializer):
         fields = [
             'app_name', 'deep_link_prefix', 'maintenance_mode', 'app_version', 'app_version_bundle',
             'last_bundle_version', 'minimum_supported_bundle_version', 'server_time_zone', 'server_time',
-            'choices_continent', 'choices_world_cup_group', 'choices_match_level', 'choices_match_status',
-            'choices_winner', 'choices_team_player_role', ]
+            'acceptable_duration_between_predict_and_match_by_seconds', 'choices_continent', 'choices_world_cup_group',
+            'choices_match_level', 'choices_match_status', 'choices_winner', 'choices_team_player_role', ]
 
 
 class HealthSerializer(BaseSerializer):

@@ -67,6 +67,10 @@ class Configuration(SingletonBaseModel):
         help_text="day hour:minute:second")
 
     @property
+    def acceptable_duration_between_predict_and_match_by_seconds(self):
+        return int(datetime.timedelta.total_seconds(self.last_prediction_till_start_match_duration))
+
+    @property
     def server_time_zone(self):
         return settings.TIME_ZONE
 
